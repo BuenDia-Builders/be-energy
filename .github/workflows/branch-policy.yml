@@ -1,0 +1,28 @@
+name: Branch Policy
+
+on:
+  pull_request:
+    branches: [main, staging, develop]
+
+jobs:
+  check-branch-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch flow
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+        run: |
+          echo "PR: $HEAD → $BASE"
+
+          if [ "$BASE" = "main" ] && [ "$HEAD" != "staging" ]; then
+            echo "::error::PRs to main must come from staging (got $HEAD)"
+            exit 1
+          fi
+
+          if [ "$BASE" = "staging" ] && [ "$HEAD" != "develop" ]; then
+            echo "::error::PRs to staging must come from develop (got $HEAD)"
+            exit 1
+          fi
+
+          echo "Branch policy check passed"
