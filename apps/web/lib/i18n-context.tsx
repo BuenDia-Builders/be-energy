@@ -109,6 +109,11 @@ const translations = {
     "success.sale": "Has vendido",
     "success.transaction": "Tu transacción se ha procesado correctamente en la red Stellar",
     "success.close": "Cerrar",
+    "success.type": "Tipo",
+    "success.amount": "Cantidad",
+    "success.xlmAmount": "Monto en XLM",
+    "success.txHash": "Hash de transacción",
+    "success.viewOnStellarExpert": "Ver en Stellar Expert",
 
     // Sidebar
     "sidebar.dashboard": "Dashboard",
@@ -255,6 +260,11 @@ const translations = {
     "success.sale": "You have sold",
     "success.transaction": "Your transaction has been successfully processed on the Stellar network",
     "success.close": "Close",
+    "success.type": "Type",
+    "success.amount": "Amount",
+    "success.xlmAmount": "XLM Amount",
+    "success.txHash": "Transaction Hash",
+    "success.viewOnStellarExpert": "View on Stellar Expert",
 
     // Sidebar
     "sidebar.dashboard": "Dashboard",
