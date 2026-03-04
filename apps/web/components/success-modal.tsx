@@ -14,6 +14,7 @@ interface SuccessModalProps {
   amount: number
   xlmAmount: number
   txHash?: string
+  redirectTo?: string
 }
 
 export function SuccessModal({
@@ -23,6 +24,7 @@ export function SuccessModal({
   amount,
   xlmAmount,
   txHash = "",
+  redirectTo,
 }: SuccessModalProps) {
   const router = useRouter()
   const { t } = useI18n()
@@ -45,7 +47,7 @@ export function SuccessModal({
 
   const handleClose = () => {
     onOpenChange(false)
-    router.push("/dashboard")
+    router.push(redirectTo ?? "/dashboard")
   }
 
   const shortHash = txHash ? `${txHash.slice(0, 8)}...${txHash.slice(-8)}` : null
