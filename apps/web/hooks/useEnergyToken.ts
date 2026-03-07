@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { useWallet } from "@/lib/wallet-context"
 import { CONTRACTS, STELLAR_CONFIG, NETWORK_PASSPHRASE } from "@/lib/contracts-config"
 import * as StellarSdk from "@stellar/stellar-sdk"
@@ -13,7 +13,7 @@ export function useEnergyToken() {
   /**
    * Get balance of $ENERGY tokens for the current user
    */
-  const getBalance = async (userAddress?: string): Promise<string> => {
+  const getBalance = useCallback(async (userAddress?: string): Promise<string> => {
     try {
       setIsLoading(true)
       setError(null)
@@ -58,12 +58,29 @@ export function useEnergyToken() {
       const simulatedResult = await server.simulateTransaction(transaction)
 
       if (StellarSdk.rpc.Api.isSimulationSuccess(simulatedResult)) {
-        const balance = StellarSdk.scValToNative(simulatedResult.result!.retval)
+        // SDK puede exponer result.retval o (RPC) results[0].xdr
+        const sim = simulatedResult as { result?: { retval?: unknown }; results?: Array<{ xdr?: string }> }
+        let retval = sim.result?.retval
+        if (retval === undefined && Array.isArray(sim.results)?.[0]?.xdr) {
+          try {
+            retval = StellarSdk.xdr.ScVal.fromXDR(sim.results[0].xdr, "base64")
+          } catch {
+            // ignorar si el fallback falla
+          }
+        }
+        if (retval === undefined) {
+          console.error("Balance simulation: no retval in response", simulatedResult)
+          throw new Error("Formato de respuesta del contrato no reconocido")
+        }
+        const balance = StellarSdk.scValToNative(retval)
         // Convert from 7 decimals to readable format
         return (Number(balance) / 10000000).toFixed(2)
       }
 
-      throw new Error("Failed to get balance")
+      // Incluir el error real de la simulación para diagnosticar
+      const errPayload = (simulatedResult as { error?: string; message?: string })?.error ?? (simulatedResult as { error?: string; message?: string })?.message
+      const errMsg = typeof errPayload === "string" ? errPayload : JSON.stringify(simulatedResult).slice(0, 200)
+      throw new Error(errMsg ? `Balance: ${errMsg}` : "Failed to get balance")
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error"
       setError(errorMessage)
@@ -72,7 +89,7 @@ export function useEnergyToken() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [address])
 
   /**
    * Transfer $ENERGY tokens to another address

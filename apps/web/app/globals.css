@@ -3,102 +3,101 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* BeEnergy eco-tech color system */
+/* BeEnergy style from Downloads - Light Theme */
 :root {
-  /* BeEnergy Custom Colors */
-  --color-primary-blue: #0300ab;
-  --color-secondary-blue: #1b3659;
-  --color-accent-cyan: #8de8f2;
-  --color-accent-yellow: #f2c230;
-  --color-accent-orange: #fcc544;
-  --color-eco-green: #059669;
-  --color-eco-green-light: #10b981;
-
-  /* Semantic Tokens - Light Mode */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(0.97 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.25 0.15 275);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.3 0.1 250);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.8 0.15 195);
-  --accent-foreground: oklch(0.145 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.25 0.15 275);
-  --success: oklch(0.5 0.15 160);
-  --success-foreground: oklch(1 0 0);
-  --warning: oklch(0.75 0.15 85);
-  --warning-foreground: oklch(0.145 0 0);
-  --radius: 0.75rem;
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: #F7F8FA;
+  --foreground: #18191A;
+  --card: #FFFFFF;
+  --card-foreground: #18191A;
+  --popover: #FFFFFF;
+  --popover-foreground: #18191A;
+  --primary: #18191A;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0F1F3;
+  --secondary-foreground: #18191A;
+  --muted: #F0F1F3;
+  --muted-foreground: #6B7280;
+  --accent: #F0F1F3;
+  --accent-foreground: #18191A;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E7EB;
+  --input: #E5E7EB;
+  --ring: #18191A;
+  --success: #3DDC97;
+  --success-foreground: #FFFFFF;
+  --warning: #FA9A4B;
+  --warning-foreground: #18191A;
+  --radius: 1rem;
+  /* BeEnergy Brand Colors */
+  --solar-yellow: #FEC800;
+  --solar-orange: #FA9A4B;
+  --web3-purple: #C590FC;
+  --energy-green: #3DDC97;
+  --chart-1: #FEC800;
+  --chart-2: #FA9A4B;
+  --chart-3: #C590FC;
+  --chart-4: #3DDC97;
+  --chart-5: #6366F1;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #18191A;
+  --sidebar-primary: #18191A;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F0F1F3;
+  --sidebar-accent-foreground: #18191A;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #18191A;
 }
 
-/* Dark mode with BeEnergy colors */
+/* BeEnergy style from Downloads - Dark Theme */
 .dark {
-  --background: oklch(0.145 0.02 250);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.22 0.02 250);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.22 0.02 250);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.8 0.15 195);
-  --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.3 0.1 250);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.32 0.02 250);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.8 0.15 195);
-  --accent-foreground: oklch(0.145 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.32 0.02 250);
-  --input: oklch(0.32 0.02 250);
-  --ring: oklch(0.8 0.15 195);
-  --success: oklch(0.6 0.15 160);
-  --success-foreground: oklch(0.145 0 0);
-  --warning: oklch(0.85 0.15 85);
-  --warning-foreground: oklch(0.145 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: #18191A;
+  --foreground: #F7F8FA;
+  --card: #1F2123;
+  --card-foreground: #F7F8FA;
+  --popover: #1F2123;
+  --popover-foreground: #F7F8FA;
+  --primary: #FFFFFF;
+  --primary-foreground: #18191A;
+  --secondary: #2A2C2E;
+  --secondary-foreground: #F7F8FA;
+  --muted: #2A2C2E;
+  --muted-foreground: #9CA3AF;
+  --accent: #2A2C2E;
+  --accent-foreground: #F7F8FA;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #2A2C2E;
+  --input: #2A2C2E;
+  --ring: #FFFFFF;
+  --success: #3DDC97;
+  --success-foreground: #FFFFFF;
+  --warning: #FA9A4B;
+  --warning-foreground: #18191A;
+  --solar-yellow: #FEC800;
+  --solar-orange: #FA9A4B;
+  --web3-purple: #C590FC;
+  --energy-green: #3DDC97;
+  --chart-1: #FEC800;
+  --chart-2: #FA9A4B;
+  --chart-3: #C590FC;
+  --chart-4: #3DDC97;
+  --chart-5: #6366F1;
+  --sidebar: #1F2123;
+  --sidebar-foreground: #F7F8FA;
+  --sidebar-primary: #FFFFFF;
+  --sidebar-primary-foreground: #18191A;
+  --sidebar-accent: #2A2C2E;
+  --sidebar-accent-foreground: #F7F8FA;
+  --sidebar-border: #2A2C2E;
+  --sidebar-ring: #FFFFFF;
 }
 
-/* Updated font configuration for Poppins and Lato */
+/* Font configuration - estilo Downloads (Inter, Geist Mono) */
 @theme inline {
-  --font-sans: "Poppins", "Poppins Fallback", ui-sans-serif, system-ui;
-  --font-body: "Lato", "Lato Fallback", ui-sans-serif, system-ui;
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: "Inter", "Geist", system-ui, sans-serif;
+  --font-body: "Inter", "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -139,6 +138,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  /* BeEnergy brand colors (Downloads style) - Tailwind utilities */
+  --color-solar-yellow: var(--solar-yellow);
+  --color-solar-orange: var(--solar-orange);
+  --color-web3-purple: var(--web3-purple);
+  --color-energy-green: var(--energy-green);
 }
 
 @layer base {
@@ -169,16 +173,17 @@
 }
 
 .dark .glass-card {
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid rgba(141, 232, 242, 0.2);
+  background: rgba(31, 33, 35, 0.4);
+  border: 1px solid rgba(197, 144, 252, 0.2);
 }
 
+/* Gradientes con paleta Downloads */
 .gradient-primary {
-  background: linear-gradient(135deg, #0300ab 0%, #8de8f2 100%);
+  background: linear-gradient(135deg, #FEC800 0%, #FA9A4B 100%);
 }
 
 .gradient-eco {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  background: linear-gradient(135deg, #3DDC97 0%, #10b981 100%);
 }
 
 @keyframes float {
@@ -198,10 +203,10 @@
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(141, 232, 242, 0.3);
+    box-shadow: 0 0 20px rgba(254, 200, 0, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(141, 232, 242, 0.6);
+    box-shadow: 0 0 40px rgba(254, 200, 0, 0.6);
   }
 }
 

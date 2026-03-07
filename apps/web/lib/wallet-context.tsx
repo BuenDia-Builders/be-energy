@@ -119,8 +119,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (e) {
         nullify()
-        // Only log if there's a meaningful error (not empty object from missing wallet)
-        if (e && Object.keys(e as object).length > 0) {
+        // Skip log for harmless "no wallet" empty object; log real errors (Error has no enumerable keys)
+        if (e instanceof Error) {
+          console.error("Wallet state error:", e.message || e)
+        } else if (e != null && (typeof e !== "object" || Object.keys(e as object).length > 0)) {
           console.error("Wallet state error:", e)
         }
       } finally {

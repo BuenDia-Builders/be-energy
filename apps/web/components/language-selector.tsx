@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useI18n } from "@/lib/i18n-context"
 import { Button } from "@/components/ui/button"
 import { Languages } from "lucide-react"
@@ -7,6 +8,20 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 export function LanguageSelector() {
   const { language, setLanguage } = useI18n()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  // Evita hydration mismatch: Radix genera IDs distintos en servidor vs cliente.
+  // Mismo botón sin dropdown hasta montaje en cliente.
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon" className="relative" type="button" aria-label="Select language">
+        <Languages className="w-5 h-5" />
+        <span className="sr-only">Select language</span>
+      </Button>
+    )
+  }
 
   return (
     <DropdownMenu>

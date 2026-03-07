@@ -1,8 +1,9 @@
 "use client"
 
+import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useI18n } from "@/lib/i18n-context"
-import { Home, Store, History, LogOut, Leaf, Zap } from "lucide-react"
+import { Home, Store, History, LogOut, Sun, Zap, BarChart3, User, Settings, Activity, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useWallet } from "@/lib/wallet-context"
 import { cn } from "@/lib/utils"
@@ -20,49 +21,73 @@ export function Sidebar() {
 
   const menuItems = [
     { icon: Home, label: t("sidebar.dashboard"), href: "/dashboard", enabled: true },
+    { icon: Building2, label: t("sidebar.cooperativas"), href: "/cooperativas", enabled: true },
+    { icon: Zap, label: t("nav.energy"), href: "/energy", enabled: true },
     { icon: Store, label: t("sidebar.marketplace"), href: "/marketplace", enabled: true },
     { icon: History, label: t("sidebar.activity"), href: "/activity", enabled: true },
-    { icon: Zap, label: t("sidebar.consumption"), href: "/consumption", enabled: true },
+    { icon: BarChart3, label: t("nav.analytics"), href: "/analytics", enabled: true },
+    { icon: Activity, label: t("sidebar.consumption"), href: "/consumption", enabled: true },
+    { icon: User, label: t("nav.profile"), href: "/profile", enabled: true },
+    { icon: Settings, label: t("nav.settings"), href: "/settings", enabled: true },
   ]
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border flex-col">
-      {/* Logo */}
-      <div className="p-6 border-b border-border">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-[#F2C230] rounded-full flex items-center justify-center">
-            <Leaf className="w-6 h-6 text-[#0300AB]" />
+    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border flex-col z-50">
+      {/* Logo - estilo Downloads */}
+      <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-6">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-solar-yellow">
+            <Sun className="h-5 w-5 text-black" />
           </div>
-          <span className="text-2xl font-bold">BeEnergy</span>
-        </div>
+          <span className="text-lg font-semibold text-sidebar-foreground">BeEnergy</span>
+        </Link>
       </div>
 
-      {/* Menu */}
-      <nav className="flex-1 p-4 space-y-2">
+      {/* Menu - estilo Downloads */}
+      <nav className="flex-1 space-y-1 px-3 py-4">
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
 
-          return (
-            <button
+          return item.enabled ? (
+            <Link
               key={item.href}
-              onClick={() => item.enabled && router.push(item.href)}
-              disabled={!item.enabled}
+              href={item.href}
               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left",
-                isActive && "bg-primary/10 text-primary font-semibold",
-                !isActive && item.enabled && "hover:bg-muted text-foreground",
-                !item.enabled && "opacity-50 cursor-not-allowed text-muted-foreground",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-sidebar-accent text-solar-yellow"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground",
               )}
             >
-              <Icon className="w-5 h-5" />
-              <span>{item.label}</span>
-            </button>
+              <Icon className={cn("h-5 w-5", isActive && "text-solar-yellow")} />
+              {item.label}
+            </Link>
+          ) : (
+            <div
+              key={item.href}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/50 opacity-50 cursor-not-allowed"
+            >
+              <Icon className="h-5 w-5" />
+              {item.label}
+            </div>
           )
         })}
       </nav>
 
-      <div className="p-4 border-t border-border">
+      {/* Footer Solar Status - estilo Downloads */}
+      <div className="border-t border-sidebar-border p-4">
+        <div className="rounded-lg bg-sidebar-accent p-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-energy-green/20">
+              <Zap className="h-5 w-5 text-energy-green" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-sidebar-foreground">Solar Status</p>
+              <p className="text-xs text-sidebar-foreground/70">Generating power</p>
+            </div>
+          </div>
+        </div>
         <Button
           onClick={handleDisconnect}
           variant="outline"

@@ -10,6 +10,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { SuccessModal } from "@/components/success-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Dialog,
   DialogContent,
@@ -20,7 +21,18 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Plus, Zap, ArrowLeft, Users, Activity, AlertCircle, Loader2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import {
+  Plus,
+  Zap,
+  Users,
+  User,
+  Tag,
+  ShoppingCart,
+  TrendingDown,
+  AlertCircle,
+  Loader2,
+} from "lucide-react"
 import { mockOffers, generateIdenticon, mockUser } from "@/lib/mock-data"
 
 interface Offer {
@@ -59,28 +71,20 @@ export default function MarketplacePage() {
   }>({ totalGenerated: 0, memberCount: 0, members: [], isLoading: true, error: null })
 
   useEffect(() => {
-    if (!isConnected) {
-      router.push("/")
-    }
+    if (!isConnected) router.push("/")
   }, [isConnected, router])
 
   useEffect(() => {
     const savedOffers = localStorage.getItem("marketplaceOffers")
     const savedStockKwh = localStorage.getItem("userStockKwh")
-
-    if (savedOffers) {
-      setOffers(JSON.parse(savedOffers))
-    }
-    if (savedStockKwh) {
-      setUserStockKwh(Number.parseFloat(savedStockKwh))
-    }
+    if (savedOffers) setOffers(JSON.parse(savedOffers))
+    if (savedStockKwh) setUserStockKwh(Number.parseFloat(savedStockKwh))
   }, [])
 
   useEffect(() => {
     if (!address) return
-
     const fetchContractData = async () => {
-      setContractStats(prev => ({ ...prev, isLoading: true, error: null }))
+      setContractStats((prev) => ({ ...prev, isLoading: true, error: null }))
       try {
         const [totalGenerated, members] = await Promise.all([
           getTotalGenerated(),
@@ -94,20 +98,17 @@ export default function MarketplacePage() {
           error: null,
         })
       } catch (err) {
-        setContractStats(prev => ({
+        setContractStats((prev) => ({
           ...prev,
           isLoading: false,
           error: err instanceof Error ? err.message : "Unknown error",
         }))
       }
     }
-
     fetchContractData()
-  }, [address])
+  }, [address, getTotalGenerated, getMemberList])
 
-  if (!isConnected) {
-    return null
-  }
+  if (!isConnected) return null
 
   const totalAvailableKwh = offers.reduce((sum, offer) => sum + offer.amount, 0)
 
@@ -128,7 +129,7 @@ export default function MarketplacePage() {
 
   const handleConfirmBuy = () => {
     if (selectedOffer) {
-      const updatedOffers = offers.filter((offer) => offer.id !== selectedOffer.id)
+      const updatedOffers = offers.filter((o) => o.id !== selectedOffer.id)
       setOffers(updatedOffers)
       localStorage.setItem("marketplaceOffers", JSON.stringify(updatedOffers))
 
@@ -137,7 +138,7 @@ export default function MarketplacePage() {
       localStorage.setItem("userStockKwh", newStock.toString())
 
       const history = JSON.parse(localStorage.getItem("transactionHistory") || "[]")
-      const newTransaction = {
+      history.unshift({
         id: Date.now(),
         type: "compra",
         description: `Compra de energía - ${selectedOffer.sellerShort}`,
@@ -146,15 +147,10 @@ export default function MarketplacePage() {
         time: "Ahora",
         icon: "success",
         timestamp: new Date().toISOString(),
-      }
-      history.unshift(newTransaction)
+      })
       localStorage.setItem("transactionHistory", JSON.stringify(history))
 
-      setSuccessData({
-        type: "compra",
-        amount: selectedOffer.amount,
-        xlmAmount: selectedOffer.total,
-      })
+      setSuccessData({ type: "compra", amount: selectedOffer.amount, xlmAmount: selectedOffer.total })
     }
     setShowBuyModal(false)
     setShowSuccessModal(true)
@@ -168,119 +164,165 @@ export default function MarketplacePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
-
-      <main className="md:ml-64">
+      <div className="flex flex-1 flex-col lg:pl-64">
         <DashboardHeader />
-
-        <div className="p-4 md:p-6">
-          <Button variant="ghost" onClick={() => router.back()} className="gap-2 mb-4">
-            <ArrowLeft className="w-4 h-4" />
-            {t("common.back")}
-          </Button>
-
-          <div className="mb-6 md:mb-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">{t("marketplace.title")}</h1>
-                <p className="text-muted-foreground text-base md:text-lg">
-                  {t("marketplace.availableKwh")}{" "}
-                  <span className="font-semibold text-success">{totalAvailableKwh}</span>
-                </p>
-              </div>
-              <Button
-                onClick={() => setShowCreateModal(true)}
-                className="gradient-eco text-white font-semibold gap-2"
-                size="lg"
-              >
-                <Plus className="w-5 h-5" />
-                {t("marketplace.createOffer")}
-              </Button>
+        <main className="flex-1 p-4 md:p-6 lg:p-8 space-y-6">
+          {/* Page Header - estilo Downloads */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">{t("marketplace.title")}</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("marketplace.availableKwh")} <span className="font-semibold text-energy-green">{totalAvailableKwh}</span>
+              </p>
             </div>
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-solar-yellow text-black hover:bg-solar-yellow/90"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {t("marketplace.createOffer")}
+            </Button>
           </div>
 
-          <Card className="mb-6 md:mb-8">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Activity className="w-5 h-5 text-primary" />
-                {t("marketplace.communityStats")}
-              </CardTitle>
-              <p className="text-xs text-muted-foreground">{t("marketplace.contractData")}</p>
-            </CardHeader>
-            <CardContent>
-              {contractStats.isLoading ? (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">{t("marketplace.loadingContract")}</span>
+          {/* Community Statistics - estilo Downloads (con datos de contrato Be-energy) */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Card className="border-0 bg-card shadow-sm">
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-solar-yellow/10">
+                  <Zap className="h-6 w-6 text-solar-yellow" />
                 </div>
-              ) : contractStats.error ? (
-                <div className="flex items-center gap-2 text-destructive">
-                  <AlertCircle className="w-4 h-4" />
-                  <span className="text-sm">{t("marketplace.errorContract")}</span>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t("marketplace.totalGenerated")}</p>
-                    <p className="text-2xl font-bold text-success">
+                <div>
+                  <p className="text-sm text-muted-foreground">{t("marketplace.total_energy")}</p>
+                  {contractStats.isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">{t("marketplace.loadingContract")}</span>
+                    </div>
+                  ) : contractStats.error ? (
+                    <div className="flex items-center gap-2 text-destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="text-sm">{t("marketplace.errorContract")}</span>
+                    </div>
+                  ) : (
+                    <p className="text-2xl font-bold text-card-foreground">
                       {contractStats.totalGenerated.toLocaleString()} kWh
                     </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">{t("marketplace.activeMembers")}</p>
-                    <p className="text-2xl font-bold flex items-center gap-2">
-                      <Users className="w-5 h-5 text-primary" />
-                      {contractStats.memberCount}
-                    </p>
-                  </div>
+                  )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {offers.map((offer) => {
-              const identiconColor = generateIdenticon(offer.seller)
-
-              return (
-                <Card key={offer.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
-                        style={{ backgroundColor: identiconColor }}
-                      >
-                        {offer.sellerShort.slice(0, 2)}
-                      </div>
-                      <div>
-                        <CardTitle className="text-sm md:text-base">{offer.sellerShort}</CardTitle>
-                      </div>
+              </CardContent>
+            </Card>
+            <Card className="border-0 bg-card shadow-sm">
+              <CardContent className="flex items-center gap-4 p-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-energy-green/10">
+                  <Users className="h-6 w-6 text-energy-green" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">{t("marketplace.activeMembers")}</p>
+                  {contractStats.isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-baseline gap-2">
-                      <Zap className="w-5 h-5 md:w-6 md:h-6 text-success flex-shrink-0" />
-                      <span className="text-2xl md:text-3xl font-bold text-success">{offer.amount} kWh</span>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-base md:text-lg font-semibold">{offer.pricePerKwh} XLM/kWh</p>
-                      <p className="text-xs md:text-sm text-muted-foreground">Total: {offer.total} XLM</p>
-                    </div>
-                    <Button
-                      onClick={() => handleBuy(offer)}
-                      className="w-full gradient-primary text-white font-semibold hover:scale-105 transition-transform"
-                    >
-                      {t("marketplace.buy")}
-                    </Button>
-                  </CardContent>
-                </Card>
-              )
-            })}
+                  ) : (
+                    <p className="text-2xl font-bold text-card-foreground">
+                      {contractStats.memberCount.toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      </main>
 
+          {/* Tabs - estilo Downloads */}
+          <Tabs defaultValue="sell" className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-2 bg-secondary">
+              <TabsTrigger value="sell" className="data-[state=active]:bg-background">
+                <Tag className="h-4 w-4 mr-2" />
+                {t("marketplace.sell_offers")}
+              </TabsTrigger>
+              <TabsTrigger value="buy" className="data-[state=active]:bg-background">
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                {t("marketplace.buy_offers")}
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Sell Offers - datos reales Be-energy */}
+            <TabsContent value="sell" className="mt-6">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {offers.map((offer) => {
+                  const identiconColor = generateIdenticon(offer.seller)
+                  return (
+                    <Card
+                      key={offer.id}
+                      className="border-0 bg-card shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="flex h-10 w-10 items-center justify-center rounded-full text-white font-bold text-sm"
+                              style={{ backgroundColor: identiconColor }}
+                            >
+                              {offer.sellerShort.slice(0, 2)}
+                            </div>
+                            <div>
+                              <p className="font-semibold text-card-foreground text-sm">{offer.sellerShort}</p>
+                              <span className="text-xs text-muted-foreground">
+                                {offer.amount} kWh • {offer.pricePerKwh} XLM/kWh
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 mb-4">
+                          <div className="flex items-center justify-between p-3 rounded-lg bg-solar-yellow/5 dark:bg-solar-yellow/10">
+                            <div>
+                              <p className="text-xs text-muted-foreground">{t("marketplace.available")}</p>
+                              <p className="text-lg font-bold text-solar-yellow">{offer.amount} kWh</p>
+                            </div>
+                            <Zap className="h-8 w-8 text-solar-yellow/30" />
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs text-muted-foreground">{t("marketplace.price")}</p>
+                              <p className="text-sm font-semibold text-card-foreground">{offer.pricePerKwh} XLM/kWh</p>
+                            </div>
+                            <Badge variant="secondary" className="bg-web3-purple/20 text-web3-purple">
+                              {offer.total.toFixed(2)} XLM
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <Button
+                          onClick={() => handleBuy(offer)}
+                          className="w-full bg-energy-green text-black hover:bg-energy-green/90"
+                        >
+                          {t("marketplace.buy_energy")}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            </TabsContent>
+
+            {/* Buy Offers - placeholder estético (Be-energy no tiene datos de compra aún) */}
+            <TabsContent value="buy" className="mt-6">
+              <div className="rounded-lg border border-dashed border-border p-12 text-center">
+                <TrendingDown className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground">{t("marketplace.no_buy_offers")}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Las ofertas de compra aparecerán aquí cuando otros usuarios busquen energía
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </main>
+      </div>
+
+      {/* Create Offer Modal - funcionalidad Be-energy */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -326,7 +368,7 @@ export default function MarketplacePage() {
             </Button>
             <Button
               onClick={handleCreateOffer}
-              className="gradient-eco text-white w-full sm:w-auto"
+              className="bg-energy-green hover:bg-energy-green/90 text-white w-full sm:w-auto"
               disabled={!newOfferAmount || !newOfferPrice}
             >
               {t("marketplace.createModal.publish")}
@@ -335,6 +377,7 @@ export default function MarketplacePage() {
         </DialogContent>
       </Dialog>
 
+      {/* Buy Confirmation Modal - funcionalidad Be-energy */}
       <Dialog open={showBuyModal} onOpenChange={setShowBuyModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -350,16 +393,16 @@ export default function MarketplacePage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{t("marketplace.buyModal.quantity")}</span>
-                  <span className="font-semibold text-success">{selectedOffer.amount} kWh</span>
+                  <span className="font-semibold text-energy-green">{selectedOffer.amount} kWh</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{t("marketplace.buyModal.unitPrice")}</span>
                   <span className="font-semibold">{selectedOffer.pricePerKwh} XLM/kWh</span>
                 </div>
               </div>
-              <div className="p-4 bg-primary/10 rounded-lg border-2 border-primary">
+              <div className="p-4 bg-solar-yellow/10 rounded-lg border-2 border-solar-yellow">
                 <p className="text-sm text-muted-foreground">{t("marketplace.buyModal.totalPay")}</p>
-                <p className="text-2xl md:text-3xl font-bold text-primary">{selectedOffer.total} XLM</p>
+                <p className="text-2xl md:text-3xl font-bold text-solar-yellow">{selectedOffer.total} XLM</p>
               </div>
             </div>
           )}
@@ -367,7 +410,10 @@ export default function MarketplacePage() {
             <Button variant="outline" onClick={() => setShowBuyModal(false)} className="w-full sm:w-auto">
               {t("marketplace.createModal.cancel")}
             </Button>
-            <Button onClick={handleConfirmBuy} className="gradient-primary text-white w-full sm:w-auto">
+            <Button
+              onClick={handleConfirmBuy}
+              className="bg-solar-yellow hover:bg-solar-yellow/90 text-black w-full sm:w-auto"
+            >
               {t("marketplace.buyModal.confirm")}
             </Button>
           </DialogFooter>

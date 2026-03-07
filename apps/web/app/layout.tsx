@@ -1,22 +1,20 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Poppins, Lato } from "next/font/google"
+import { Inter, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { WalletProvider } from "@/lib/wallet-context"
 import { ThemeProvider } from "@/lib/theme-context"
 import { I18nProvider } from "@/lib/i18n-context"
 
-const poppins = Poppins({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
+  variable: "--font-inter",
 })
 
-const lato = Lato({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-lato",
+  variable: "--font-geist-mono",
 })
 
 export const metadata: Metadata = {
@@ -43,7 +41,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0300AB",
+  themeColor: "#FEC800",
   width: "device-width",
   initialScale: 1,
 }
@@ -55,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${poppins.variable} ${lato.variable} antialiased`}>
+      <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider>
           <I18nProvider>
             <WalletProvider>{children}</WalletProvider>
