@@ -1,12 +1,20 @@
-# BeEnergy — Cómo funciona
+# BeEnergy 
 
-BeEnergy no es un mercado abierto de energía. Es infraestructura operativa para que cooperativas validen, rastreen y concilien créditos energéticos solares.
+Es una infraestructura blockchain para que cooperativas eléctricas digitalicen, rastreen y gestionen créditos de energía solar distribuida con trazabilidad total.
 
 ## El problema
 
-Miles de familias en Argentina instalaron paneles solares. Cuando generan más de lo que consumen, el excedente se inyecta a la red y la cooperativa les reconoce un crédito en la factura.
+En Argentina, cooperativas eléctricas gestionan créditos solares con planillas Excel y procesos manuales. Miles de hogares instalaron paneles solares bajo la Ley 27.424, pero:
 
-El problema no es que falte generación ni que la normativa lo impida — el Art. 12f de la Ley 27.424 habilita la transferencia de créditos entre socios del mismo distribuidor desde 2017. Lo que falta es la herramienta operativa para hacerlo funcionar en la práctica.
+- El usuario-generador no tiene visibilidad directa de cuánto genera
+- El dato existe en el medidor pero nunca llega de forma accesible
+- La cooperativa concilia manualmente mes a mes sin registro auditable
+- El crédito queda inmovilizado en el sistema de facturación
+- No puede reasignarse aunque la ley lo contemple (Art. 12f desde 2017)
+
+La ley permite transferir créditos entre socios del mismo distribuidor hace 8 años. Lo que falta es la herramienta operativa para ejecutarlo sin procesos manuales, con trazabilidad completa y sin depender de registros internos cerrados.
+
+BeEnergy digitaliza esa conciliación y le da a la cooperativa un sistema auditable para gestionar créditos energéticos.
 
 **Hoy:**
 
@@ -108,3 +116,25 @@ Los números exactos dependen de la cantidad de usuarios, el volumen de generaci
 - No es un activo cripto ni un instrumento de inversión.
 - No reemplaza a la cooperativa — la potencia operativamente.
 - No instala paneles, no maneja la red, no pone medidores.
+
+## Audiencia
+Cliente principal: LA COOPERATIVA ELÉCTRICA
+
+Perfil:
+- Argentina tiene 343+ cooperativas eléctricas distribuidas (CADER)
+- Gestionan créditos solares con planillas Excel o sistemas legacy
+- Tienen el problema operativo HOY (conciliación manual, falta de trazabilidad)
+- Tienen autoridad legal para validar medición y habilitar reasignaciones
+
+¿Qué gana la cooperativa con BeEnergy?
+✅ Digitalizar conciliación de créditos energéticos (menos trabajo manual)
+✅ Trazabilidad completa por usuario, período y volumen (auditable)
+✅ Ofrecer visibilidad al usuario-generador sin cambiar operativa existente
+✅ Administrar reasignación de créditos según Ley 27.424 (cumplimiento normativo)
+✅ Dashboard operativo para gestionar todo desde un panel único
+
+Usuario final (indirecto):
+- Usuario-generador: Ve cuánto genera, cuánto tiene en créditos, cómo se aplican
+- Usuario-consumidor: Puede recibir créditos reasignados por la cooperativa
+
+Pero el que PAGA y OPERA el sistema es la cooperativa.
