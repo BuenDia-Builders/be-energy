@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, Award, Zap, Flame, Leaf, ExternalLink, ChevronDown, ChevronUp, AlertCircle } from "lucide-react"
 import { InfoTooltip } from "@/components/shared/info-tooltip"
 import { Spinner } from "@/components/ui/spinner"
+import { Label } from "@/components/ui/label"
 import { useAuth } from "@/lib/auth-context"
 import { RetireCertificateModal } from "@/components/modals/retire-certificate-modal"
 
@@ -117,6 +118,8 @@ export default function CertificatesPage() {
   const { t } = useI18n()
   const router = useRouter()
 
+  const [mounted, setMounted] = useState(false)
+
   const [techFilter, setTechFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [retireCert, setRetireCert] = useState<Certificate | null>(null)
@@ -127,13 +130,22 @@ export default function CertificatesPage() {
     status: statusFilter === "all" ? undefined : statusFilter,
   })
 
-  useEffect(() => {
+
+   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+
+  /*useEffect(() => {
     if (!isConnected) {
       router.push("/")
     }
   }, [isConnected, router])
 
-  if (!isConnected) return null
+  if (!isConnected) return null*/
+
+    // 🔥 Prevent hydration mismatch
+  if (!mounted) return null
 
   // Extract unique technologies from certificates for filter
   const technologies = [...new Set(certificates.map((c) => c.technology))]
@@ -201,31 +213,41 @@ export default function CertificatesPage() {
 
           {/* Filters */}
           <div className="flex flex-wrap gap-3">
-            <Select value={techFilter} onValueChange={setTechFilter}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder={t("certificates.filter.technology")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("certificates.filter.all")}</SelectItem>
-                {technologies.map((tech) => (
-                  <SelectItem key={tech} value={tech}>
-                    {tech.charAt(0).toUpperCase() + tech.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <Label htmlFor="technology-filter">
+                {t("certificates.filterByTechnology")}
+              </Label>
+              <Select value={techFilter} onValueChange={setTechFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder={t("certificates.filter.technology")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("certificates.filter.all")}</SelectItem>
+                  {technologies.map((tech) => (
+                    <SelectItem key={tech} value={tech}>
+                      {tech.charAt(0).toUpperCase() + tech.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder={t("certificates.filter.status")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("certificates.filter.all")}</SelectItem>
-                <SelectItem value="pending">{t("certificates.status.pending")}</SelectItem>
-                <SelectItem value="available">{t("certificates.status.available")}</SelectItem>
-                <SelectItem value="retired">{t("certificates.status.retired")}</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <Label htmlFor="status-filter">
+                {t("certificates.filterByStatus")}
+              </Label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder={t("certificates.filter.status")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("certificates.filter.all")}</SelectItem>
+                  <SelectItem value="pending">{t("certificates.status.pending")}</SelectItem>
+                  <SelectItem value="available">{t("certificates.status.available")}</SelectItem>
+                  <SelectItem value="retired">{t("certificates.status.retired")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Certificates List */}
