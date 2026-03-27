@@ -118,7 +118,7 @@ export default function CertificatesPage() {
   const { t } = useI18n()
   const router = useRouter()
 
-  const [mounted, setMounted] = useState(false)
+  //const [mounted, setMounted] = useState(false)
 
   const [techFilter, setTechFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
@@ -131,21 +131,21 @@ export default function CertificatesPage() {
   })
 
 
-   useEffect(() => {
+   /*useEffect(() => {
     setMounted(true)
-  }, [])
+  }, [])*/
 
 
-  /*useEffect(() => {
+  useEffect(() => {
     if (!isConnected) {
       router.push("/")
     }
   }, [isConnected, router])
 
-  if (!isConnected) return null*/
+  if (!isConnected) return null
 
     // 🔥 Prevent hydration mismatch
-  if (!mounted) return null
+  /*if (!mounted) return null*/
 
   // Extract unique technologies from certificates for filter
   const technologies = [...new Set(certificates.map((c) => c.technology))]
