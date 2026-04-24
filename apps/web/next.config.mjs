@@ -1,4 +1,13 @@
 /** @type {import('next').NextConfig} */
+const isProduction = process.env.NODE_ENV === "production"
+
+const scriptSrc = [
+  "'self'",
+  "'unsafe-inline'",
+  ...(isProduction ? [] : ["'unsafe-eval'"]),
+  "https://va.vercel-scripts.com",
+].join(" ")
+
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -44,11 +53,11 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              `script-src ${scriptSrc}`,
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://stellar.creit.tech https://storage.herewallet.app https://*.lobstr.co https://*.albedo.link",
-              "connect-src 'self' https://soroban-testnet.stellar.org https://horizon-testnet.stellar.org https://*.supabase.co wss://*.supabase.co https://api.defindex.tech https://stellar.creit.tech https://*.walletconnect.com wss://*.walletconnect.com",
+              "connect-src 'self' https://soroban-testnet.stellar.org https://horizon-testnet.stellar.org https://*.supabase.co wss://*.supabase.co https://api.defindex.tech https://stellar.creit.tech https://*.walletconnect.com wss://*.walletconnect.com https://va.vercel-scripts.com",
               "frame-src 'self' https://*.albedo.link https://*.xbull.app https://*.lobstr.co",
               "frame-ancestors 'none'",
             ].join("; "),
