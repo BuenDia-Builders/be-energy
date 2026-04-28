@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { useWallet } from "@/lib/wallet-context"
+import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n-context"
 import { useMyReadings } from "@/hooks/useMyReadings"
 import { Sidebar } from "@/components/sidebar"
@@ -10,11 +11,11 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
-import { ArrowLeft, Zap, FileText, RefreshCw } from "lucide-react"
+import { ArrowLeft, Zap, FileText, RefreshCw, CheckCircle2 } from "lucide-react"
 import { InfoTooltip } from "@/components/shared/info-tooltip"
 
 const STATUS_TOOLTIP: Record<string, string> = {
-  pending: "Esta lectura fue registrada pero aún no fue revisada ni aprobada por la cooperativa.",
+  pending: "Esta lectura está pendiente de validación por el administrador de tu cooperativa.",
   verified: "La cooperativa revisó y confirmó que esta lectura es correcta.",
   certified: "Esta lectura fue certificada y registrada en la blockchain como proto-certificado de energía renovable.",
 }
@@ -27,15 +28,34 @@ const SOURCE_TOOLTIP: Record<string, string> = {
 
 export default function ConsumptionPage() {
   const { isConnected, address } = useWallet()
+  const { session } = useAuth()
   const { t } = useI18n()
   const router = useRouter()
   const { readings, loading, error, refetch } = useMyReadings(address)
+  const [verifying, setVerifying] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     if (!isConnected) {
       router.push("/")
     }
   }, [isConnected, router])
+
+  const verifyReading = useCallback(async (readingId: string) => {
+    setVerifying(prev => ({ ...prev, [readingId]: true }))
+    try {
+      await fetch("/api/readings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reading_id: readingId, status: "verified" }),
+      })
+      refetch()
+    } finally {
+      setVerifying(prev => ({ ...prev, [readingId]: false }))
+    }
+  }, [refetch])
+
+  const isAdminOf = (cooperativeId: string) =>
+    session?.admin_cooperative_ids.includes(cooperativeId) ?? false
 
   if (!isConnected) {
     return null
@@ -146,6 +166,7 @@ export default function ConsumptionPage() {
                                 ? "bg-web3-purple/10 text-web3-purple"
                                 : "bg-solar-yellow/10 text-solar-yellow"
                           }`}>
+                            {reading.status === "verified" && <CheckCircle2 className="w-3 h-3" />}
                             {reading.status}
                             {STATUS_TOOLTIP[reading.status] && <InfoTooltip text={STATUS_TOOLTIP[reading.status]} />}
                           </span>
@@ -154,6 +175,19 @@ export default function ConsumptionPage() {
                               {reading.source}
                               {SOURCE_TOOLTIP[reading.source] && <InfoTooltip text={SOURCE_TOOLTIP[reading.source]} />}
                             </span>
+                          )}
+                          {reading.status === "pending" && isAdminOf(reading.cooperative_id) && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-6 px-2 text-xs"
+                              disabled={verifying[reading.id]}
+                              onClick={() => verifyReading(reading.id)}
+                            >
+                              {verifying[reading.id]
+                                ? <Spinner className="size-3" />
+                                : t("consumption.verify")}
+                            </Button>
                           )}
                         </div>
                       </div>

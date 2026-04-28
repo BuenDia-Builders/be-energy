@@ -228,6 +228,8 @@ const translations = {
     "consumption.total": "generados",
     "consumption.noData": "Sin datos de generación",
     "consumption.noDataDescription": "Los datos de generación se mostrarán cuando tu cooperativa registre lecturas de medidores.",
+    "consumption.verify": "Verificar",
+    "consumption.verifying": "Verificando...",
 
     // Dashboard Member
     "dashboard.myMeters": "Mis Medidores",
@@ -614,6 +616,8 @@ const translations = {
     "consumption.total": "generated",
     "consumption.noData": "No generation data",
     "consumption.noDataDescription": "Generation data will appear when your cooperative registers meter readings.",
+    "consumption.verify": "Verify",
+    "consumption.verifying": "Verifying...",
 
     // Dashboard Member
     "dashboard.myMeters": "My Meters",
