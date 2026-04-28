@@ -32,13 +32,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function checkSession() {
       try {
         const res = await fetch("/api/auth/me")
+        if (res.status === 401) {
+          setSession(null)
+          return
+        }
         if (res.ok) {
           const data = await res.json()
           setSession(data)
         } else {
+          console.error("Unexpected /api/auth/me error:", res.status)
           setSession(null)
         }
-      } catch {
+      } catch (err) {
+        console.error("Network error fetching /api/auth/me:", err)
         setSession(null)
       } finally {
         setIsLoading(false)
