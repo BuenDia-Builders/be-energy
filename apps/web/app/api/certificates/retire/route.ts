@@ -54,10 +54,12 @@ export async function POST(req: NextRequest) {
     const minterPublic = minterKeypair.publicKey()
     const minterAccount = await server.getAccount(minterPublic)
     const contract = new StellarSdk.Contract(contractAddress)
-
+    const maxTime = Math.floor(Date.now() / 1000) + 300
+    
     const transaction = new StellarSdk.TransactionBuilder(minterAccount, {
       fee: "100000",
       networkPassphrase: NETWORK_PASSPHRASE,
+      timebounds: { minTime: 0, maxTime },
     })
       .addOperation(
         contract.call(
@@ -66,7 +68,6 @@ export async function POST(req: NextRequest) {
           StellarSdk.nativeToScVal(amountInStroops, { type: "i128" })
         )
       )
-      .setTimeout(30)
       .build()
 
     const preparedTx = await server.prepareTransaction(transaction)
