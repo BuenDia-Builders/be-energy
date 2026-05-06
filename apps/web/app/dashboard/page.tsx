@@ -247,7 +247,7 @@ export default function DashboardPage() {
                     <div className="w-8 h-8 rounded-full bg-energy-green/20 flex items-center justify-center shrink-0">
                       <Check className="w-4 h-4 text-energy-green" />
                     </div>
-                    <span className="text-xs md:text-sm font-medium text-energy-green line-through break-words">{t("onboarding.stepWallet")}</span>
+                    <span className="text-xs md:text-sm font-medium text-energy-green break-words">{t("onboarding.stepWallet")}</span>
                   </div>
 
                   <div className="hidden lg:block flex-1 h-px bg-border mx-3" />
