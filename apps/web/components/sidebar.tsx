@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation"
 import { useI18n } from "@/lib/i18n-context"
 import { useAuth } from "@/lib/auth-context"
-import { Home, History, LogOut, Leaf, Zap, Award, Building2, Shield } from "lucide-react"
+import { Home, History, LogOut, Zap, Award, Building2, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useWallet } from "@/lib/wallet-context"
 import { cn } from "@/lib/utils"
@@ -56,8 +56,8 @@ export function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-solar-yellow rounded-full flex items-center justify-center">
-            <Leaf className="w-6 h-6 text-foreground" />
+          <div className="w-10 h-10 bg-solar-yellow rounded-full flex items-center justify-center overflow-hidden">
+            <img src="/beenergy-assets/iso-transparente.png" alt="BeEnergy" className="w-7 h-7 object-contain" />
           </div>
           <span className="text-2xl font-bold">BeEnergy</span>
         </div>
