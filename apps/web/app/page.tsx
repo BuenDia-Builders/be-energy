@@ -135,7 +135,7 @@ export default function LandingPage() {
 
       {/* Bee cursor (logo that follows mouse) */}
       <Suspense fallback={null}>
-        <BeeCursor />
+        {/* <BeeCursor >*/}
       </Suspense>
 
       {/* ─── Header ─── */}
