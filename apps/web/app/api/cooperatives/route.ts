@@ -50,8 +50,9 @@ export async function POST(req: NextRequest) {
         name: v.data.name,
         technology: v.data.technology,
         admin_stellar_address: v.data.admin_stellar_address,
-        location: v.data.location ?? null,
+        country: v.data.country ?? null,
         province: v.data.province ?? null,
+        city: v.data.city ?? null,
       })
       .select()
       .single()

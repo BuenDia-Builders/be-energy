@@ -21,8 +21,9 @@ export const createCooperativeSchema = z.object({
   name: z.string().min(1).max(200),
   technology: z.enum(["solar", "wind", "hydro", "mixed"]),
   admin_stellar_address: stellarAddress,
-  location: z.string().max(200).nullish(),
+  country: z.string().max(100).nullish(),
   province: z.string().max(100).nullish(),
+  city: z.string().max(100).nullish(),
 })
 
 // Members

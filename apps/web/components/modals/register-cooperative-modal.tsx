@@ -18,20 +18,22 @@ export function RegisterCooperativeModal({ isOpen, onClose, onSuccess }: Registe
   const { address } = useWallet()
   const [name, setName] = useState("")
   const [technology, setTechnology] = useState("solar")
-  const [location, setLocation] = useState("")
+  const [country, setCountry] = useState("Argentina")
   const [province, setProvince] = useState("")
+  const [city, setCity] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
   const resetForm = () => {
-    setName("")
-    setTechnology("solar")
-    setLocation("")
-    setProvince("")
-    setError(null)
-    setSuccess(false)
-  }
+  setName("")
+  setTechnology("solar")
+  setCountry("Argentina")
+  setProvince("")
+  setCity("")
+  setError(null)
+  setSuccess(false)
+}
 
   const handleClose = () => {
     if (!isSubmitting) {
@@ -41,7 +43,7 @@ export function RegisterCooperativeModal({ isOpen, onClose, onSuccess }: Registe
   }
 
   const handleSubmit = async () => {
-    if (!name.trim() || !address) return
+    if (!name.trim() || !address || !province.trim() || !city.trim()) return
     setIsSubmitting(true)
     setError(null)
     try {
@@ -52,8 +54,9 @@ export function RegisterCooperativeModal({ isOpen, onClose, onSuccess }: Registe
           name: name.trim(),
           technology,
           admin_stellar_address: address,
-          location: location || undefined,
-          province: province || undefined,
+          country: country.trim(),
+          province: province.trim(),
+          city: city.trim(),
         }),
       })
       if (!res.ok) {
@@ -105,12 +108,16 @@ export function RegisterCooperativeModal({ isOpen, onClose, onSuccess }: Registe
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">{t("registerCoop.location")}</label>
-            <Input value={location} onChange={(e) => setLocation(e.target.value)} maxLength={200} />
+            <label className="block text-sm font-medium text-foreground mb-1">{t("registerCoop.country")}</label>
+            <Input value={country} onChange={(e) => setCountry(e.target.value)} maxLength={100} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">{t("registerCoop.province")}</label>
+            <label className="block text-sm font-medium text-foreground mb-1">{t("registerCoop.province")} <span className="text-red-500">*</span></label>
             <Input value={province} onChange={(e) => setProvince(e.target.value)} maxLength={100} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">{t("registerCoop.city")} <span className="text-red-500">*</span></label>
+            <Input value={city} onChange={(e) => setCity(e.target.value)} maxLength={100} />
           </div>
         </div>
 
