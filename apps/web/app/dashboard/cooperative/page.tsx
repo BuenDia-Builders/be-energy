@@ -24,6 +24,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts"
 import { InfoTooltip } from "@/components/shared/info-tooltip"
+import { useEnergyToken } from "@/hooks/useEnergyToken"
 
 type Period = "week" | "month" | "year"
 
@@ -41,6 +42,17 @@ export default function CooperativeAdminPage() {
   const [showSubmitReading, setShowSubmitReading] = useState(false)
   const [mintingCertId, setMintingCertId] = useState<string | null>(null)
   const [mintError, setMintError] = useState<string | null>(null)
+  const { getBalance } = useEnergyToken()
+  const [hdropBalance, setHdropBalance] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (session?.admin_cooperative_ids.length) {
+      const minterAddress = process.env.NEXT_PUBLIC_ADMIN_ADDRESS
+      if (minterAddress) {
+        getBalance(minterAddress).then(setHdropBalance).catch(() => setHdropBalance("0.00"))
+      }
+    }
+  }, [session])
 
   useEffect(() => {
     if (!walletPending && !authLoading && !isConnected) router.push("/")
@@ -296,7 +308,7 @@ export default function CooperativeAdminPage() {
                             borderRadius: "8px",
                             fontSize: "12px",
                           }}
-                          formatter={(value: number) => [`${value.toLocaleString()} kWh`, t("coopAdmin.generation")]}
+                          formatter={(value) => [`${Number(value).toLocaleString()} kWh`, t("coopAdmin.generation")]}
                         />
                         <Area
                           type="monotone"
@@ -513,6 +525,23 @@ export default function CooperativeAdminPage() {
                   )}
                 </CardContent>
               </Card>
+              
+              {/* ── card HDROP ── */}
+              {hdropBalance !== null && (
+                <Card className="border-l-4 border-l-solar-yellow">
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-solar-yellow" />
+                      <span className="text-sm font-medium">Balance HDROP</span>
+                      <InfoTooltip text="Tokens de energía certificada disponibles en la plataforma (1 HDROP = 1 kWh)" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-solar-yellow">{hdropBalance}</p>
+                      <p className="text-xs text-muted-foreground">HDROP</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* ── 5. Activity Feed (recent readings) ── */}
               <Card>

@@ -19,6 +19,7 @@ import { useMyMeters } from "@/hooks/useMyMeters"
 import { useMyReadings } from "@/hooks/useMyReadings"
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button"
+import { useEnergyToken } from "@/hooks/useEnergyToken"
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
@@ -58,6 +59,14 @@ export default function DashboardPage() {
   const [communityFetchError, setCommunityFetchError] = useState<string | null>(null)
   const [communityLoadingLocal, setCommunityLoadingLocal] = useState(false)
 
+  const { getBalance } = useEnergyToken()
+  const [hdropBalance, setHdropBalance] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (address) {
+      getBalance(address).then(setHdropBalance).catch(() => setHdropBalance("0.00"))
+    }
+  }, [address])
   // Fetch community stats — catch errors gracefully, with timeout
   // eslint-disable-next-line react-hooks/exhaustive-deps -- hook fns are stable by identity
   useEffect(() => {
@@ -305,6 +314,25 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Balance HDROP */}
+            {hdropBalance !== null && (
+              <Card className="mb-4 md:mb-6">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-solar-yellow" />
+                      <span className="text-sm font-medium text-muted-foreground">Balance HDROP</span>
+                      <InfoTooltip text="Tokens de energía renovable certificada en blockchain (1 HDROP = 1 kWh)" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-solar-yellow">{hdropBalance}</p>
+                      <p className="text-xs text-muted-foreground">HDROP</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
           {/* 2. Mi Generación */}
           <Card className="mb-4 md:mb-6">
