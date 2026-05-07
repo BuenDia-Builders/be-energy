@@ -49,6 +49,13 @@ export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onS
 
   const handleSubmit = async () => {
     if (!meterId || !kwhGenerated || !readingDate) return
+
+      const today = new Date().toISOString().split("T")[0]
+      if (readingDate > today) {
+        setError("La fecha de lectura no puede ser futura")
+        return
+      }
+
     setIsSubmitting(true)
     setError(null)
     try {
@@ -110,7 +117,7 @@ export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onS
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">{t("submitReading.date")}</label>
-            <Input type="date" value={readingDate} onChange={(e) => setReadingDate(e.target.value)} />
+            <Input type="date" value={readingDate} onChange={(e) => setReadingDate(e.target.value)} max={new Date().toISOString().split("T")[0]} />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">{t("submitReading.power")}</label>
