@@ -119,10 +119,12 @@ export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onS
             <label className="block text-sm font-medium text-foreground mb-1">{t("submitReading.date")}</label>
             <Input type="date" value={readingDate} onChange={(e) => setReadingDate(e.target.value)} max={new Date().toISOString().split("T")[0]} />
           </div>
+          {/* Campo Potencia desactivado — no requerido para el flujo de lecturas
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">{t("submitReading.power")}</label>
             <Input type="number" min="0" value={powerWatts} onChange={(e) => setPowerWatts(e.target.value)} />
           </div>
+          */}
         </div>
 
         {error && (

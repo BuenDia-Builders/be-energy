@@ -46,7 +46,7 @@ export function AddMeterModal({ isOpen, onClose, cooperativeId, onSuccess }: Add
   }
 
   const handleSubmit = async () => {
-    if (!memberAddress || !capacityKw) return
+    if (!memberAddress || !capacityKw || !serialNumber) return
     setIsSubmitting(true)
     setError(null)
     try {
@@ -66,7 +66,10 @@ export function AddMeterModal({ isOpen, onClose, cooperativeId, onSuccess }: Add
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || "Failed to add meter")
+        const errorMessages: Record<string, string> = {
+          "Validation failed": "Dirección de wallet inválida. Revisá que esté bien escrita.",
+        }
+        throw new Error(errorMessages[data.error] || data.error || "Error al agregar el medidor")
       }
       setSuccess(true)
       onSuccess()
@@ -99,10 +102,11 @@ export function AddMeterModal({ isOpen, onClose, cooperativeId, onSuccess }: Add
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">{t("addMeter.memberAddress")}</label>
             <Input value={memberAddress} onChange={(e) => setMemberAddress(e.target.value)} placeholder="G..." className="font-mono text-xs" />
+            <p className="text-xs text-muted-foreground mt-1">Dirección Stellar del miembro (empieza con G, 56 caracteres)</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">{t("addMeter.deviceType")}</label>
+              <label className="block text-sm font-medium text-foreground mb-1">{t("addMeter.deviceType")} <span className="text-red-500">*</span></label>
               <select value={deviceType} onChange={(e) => setDeviceType(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">
                 <option value="inverter">{t("addMeter.deviceTypes.inverter")}</option>
                 <option value="bidirectional_meter">{t("addMeter.deviceTypes.bidirectional_meter")}</option>
@@ -123,6 +127,7 @@ export function AddMeterModal({ isOpen, onClose, cooperativeId, onSuccess }: Add
             <label className="block text-sm font-medium text-foreground mb-1">{t("addMeter.capacity")}</label>
             <Input type="number" min="0" step="0.1" value={capacityKw} onChange={(e) => setCapacityKw(e.target.value)} />
           </div>
+          
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-foreground mb-1">{t("addMeter.manufacturer")}</label>
@@ -134,7 +139,7 @@ export function AddMeterModal({ isOpen, onClose, cooperativeId, onSuccess }: Add
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">{t("addMeter.serial")}</label>
+            <label className="block text-sm font-medium text-foreground mb-1">{t("addMeter.serial")} <span className="text-red-500">*</span></label>
             <Input value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} />
           </div>
         </div>
@@ -159,7 +164,7 @@ export function AddMeterModal({ isOpen, onClose, cooperativeId, onSuccess }: Add
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting || !memberAddress || !capacityKw}
+            disabled={isSubmitting || !memberAddress || !capacityKw || !serialNumber}
             className="flex-1 gradient-primary text-white font-semibold"
           >
             {isSubmitting ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : t("addMeter.submit")}

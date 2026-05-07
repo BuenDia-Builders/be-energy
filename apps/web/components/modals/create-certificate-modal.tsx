@@ -64,7 +64,11 @@ export function CreateCertificateModal({ isOpen, onClose, cooperativeId, onSucce
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || "Failed to create certificate")
+        const errorMessages: Record<string, string> = {
+          "No verified readings for this period": "No hay lecturas verificadas para este período. Verificá las lecturas antes de crear un certificado.",
+          "Invalid date range": t("createCert.invalidDateRange"),
+        }
+        throw new Error(errorMessages[data.error] || data.error || "Error al crear el certificado")
       }
       setSuccess(true)
       onSuccess()
@@ -104,6 +108,9 @@ export function CreateCertificateModal({ isOpen, onClose, cooperativeId, onSucce
               <Input type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} />
             </div>
           </div>
+          <p className="text-xs text-muted-foreground">
+            El período debe coincidir con lecturas verificadas registradas en el sistema.
+          </p>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">{t("createCert.kwh")}</label>
             <Input type="number" min="0" step="0.01" value={totalKwh} onChange={(e) => setTotalKwh(e.target.value)} />
