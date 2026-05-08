@@ -234,7 +234,7 @@ export default function DashboardPage() {
           )}
 
           {/* Onboarding Card — shown when user has no cooperative memberships */}
-          {session && session.cooperative_ids.length === 0 && (
+          {session && (session.cooperative_ids.length === 0 || readings.length === 0) && (
             <Card className="mb-4 md:mb-6 w-full max-w-full overflow-hidden border border-primary/20 bg-primary/5">
               <CardHeader className="pb-3 px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center gap-3 min-w-0">
@@ -249,9 +249,10 @@ export default function DashboardPage() {
               </CardHeader>
 
               <CardContent className="pt-0 px-4 sm:px-6 lg:px-8 pb-4 md:pb-6 space-y-4 md:space-y-6">
-                {/* Step Indicator — vertical until lg (1024px) */}
+                
+                {/* Step Indicator */}
                 <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-0 w-full">
-                  {/* Step 1 — Done */}
+                  {/* Step 1 — Siempre completado */}
                   <div className="flex items-center gap-2 w-full lg:w-auto lg:shrink-0">
                     <div className="w-8 h-8 rounded-full bg-energy-green/20 flex items-center justify-center shrink-0">
                       <Check className="w-4 h-4 text-energy-green" />
@@ -261,22 +262,48 @@ export default function DashboardPage() {
 
                   <div className="hidden lg:block flex-1 h-px bg-border mx-3" />
 
-                  {/* Step 2 — Current */}
+                  {/* Step 2 — Completado si tiene cooperativa, pendiente si no */}
                   <div className="flex items-center gap-2 w-full lg:w-auto lg:shrink-0">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center ring-2 ring-primary ring-offset-2 ring-offset-background shrink-0">
-                      <Users className="w-4 h-4 text-primary" />
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                      session?.cooperative_ids.length > 0
+                        ? "bg-energy-green/20"
+                        : "bg-primary/20 ring-2 ring-primary ring-offset-2 ring-offset-background"
+                    }`}>
+                      {session?.cooperative_ids.length > 0
+                        ? <Check className="w-4 h-4 text-energy-green" />
+                        : <Users className="w-4 h-4 text-primary" />
+                      }
                     </div>
-                    <span className="text-xs md:text-sm font-semibold text-primary break-words">{t("onboarding.stepJoin")}</span>
+                    <span className={`text-xs md:text-sm font-medium break-words ${
+                      session?.cooperative_ids.length > 0 ? "text-energy-green" : "text-primary font-semibold"
+                    }`}>{t("onboarding.stepJoin")}</span>
                   </div>
 
                   <div className="hidden lg:block flex-1 h-px bg-border mx-3" />
 
-                  {/* Step 3 — Pending */}
-                  <div className="flex items-center gap-2 w-full lg:w-auto lg:shrink-0 opacity-40">
-                    <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center shrink-0">
-                      <Gauge className="w-4 h-4 text-muted-foreground" />
+                  {/* Step 3 — Activo si tiene cooperativa, bloqueado si no */}
+                  <div className={`flex items-center gap-2 w-full lg:w-auto lg:shrink-0 ${
+                    session?.cooperative_ids.length === 0 ? "opacity-40" : ""
+                  }`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                      readings.length > 0
+                        ? "bg-energy-green/20"
+                        : session?.cooperative_ids.length > 0
+                          ? "bg-solar-orange/20 ring-2 ring-solar-orange ring-offset-2 ring-offset-background"
+                          : "bg-muted/50"
+                    }`}>
+                      {readings.length > 0
+                        ? <Check className="w-4 h-4 text-energy-green" />
+                        : <Gauge className={`w-4 h-4 ${session?.cooperative_ids.length > 0 ? "text-solar-orange" : "text-muted-foreground"}`} />
+                      }
                     </div>
-                    <span className="text-xs md:text-sm font-medium text-muted-foreground break-words">{t("onboarding.stepReadings")}</span>
+                    <span className={`text-xs md:text-sm font-medium break-words ${
+                      readings.length > 0
+                        ? "text-energy-green"
+                        : session?.cooperative_ids.length > 0
+                          ? "text-solar-orange font-semibold"
+                          : "text-muted-foreground"
+                    }`}>{t("onboarding.stepReadings")}</span>
                   </div>
                 </div>
 
@@ -315,7 +342,7 @@ export default function DashboardPage() {
             </Card>
           )}
 
-          {/* Balance HDROP */}
+          {/* Balance HDROP 
             {hdropBalance !== null && (
               <Card className="mb-4 md:mb-6">
                 <CardContent className="p-6">
@@ -332,8 +359,8 @@ export default function DashboardPage() {
                   </div>
                 </CardContent>
               </Card>
-            )}
-
+            )} 
+          */}
           {/* 2. Mi Generación */}
           <Card className="mb-4 md:mb-6">
             <CardHeader>

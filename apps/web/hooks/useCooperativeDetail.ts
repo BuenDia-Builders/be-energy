@@ -37,6 +37,7 @@ interface CooperativeDetail {
     meter_count: number
     total_capacity_kw: number
     total_generation_kwh: number
+    total_certified_kwh: number
     certificates_pending: number
     certificates_available: number
     certificates_retired: number

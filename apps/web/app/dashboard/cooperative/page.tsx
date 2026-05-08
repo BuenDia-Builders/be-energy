@@ -196,6 +196,10 @@ export default function CooperativeAdminPage() {
                     </div>
                     <p className="text-2xl font-bold">{stats.total_generation_kwh.toLocaleString()}</p>
                     <p className="text-xs text-muted-foreground">{t("coopAdmin.totalGeneration")} (kWh)</p>
+                    <div className="mt-2 pt-2 border-t border-border/50 flex justify-between text-xs">
+                      <span className="text-energy-green">✅ {stats.total_certified_kwh.toLocaleString()} cert.</span>
+                      <span className="text-solar-orange">⏳ {Math.max(0, (stats?.total_generation_kwh ?? 0) - (stats?.total_certified_kwh ?? 0)).toLocaleString()} pend.</span>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -526,7 +530,7 @@ export default function CooperativeAdminPage() {
                 </CardContent>
               </Card>
               
-              {/* ── card HDROP ── */}
+              {/* ── card HDROP ── 
               {hdropBalance !== null && (
                 <Card className="border-l-4 border-l-solar-yellow">
                   <CardContent className="p-4 flex items-center justify-between">
@@ -542,7 +546,7 @@ export default function CooperativeAdminPage() {
                   </CardContent>
                 </Card>
               )}
-
+              */}
               {/* ── 5. Activity Feed (recent readings) ── */}
               <Card>
                 <CardHeader>
