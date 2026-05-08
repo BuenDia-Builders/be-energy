@@ -173,7 +173,7 @@ export default function LandingPage() {
 
         {/* Content */}
         <div className="hero-content relative z-10 max-w-7xl mx-auto px-6 pt-40 pb-20 min-h-screen flex flex-col justify-center">
-          <div className="max-w-xl">
+          <div className="max-w-2x1">
             <h1 className="text-5xl md:text-7xl font-bold text-[#18191A] leading-[1.08] mb-6">
               {t("landing.hero.title1")}<br />
               <span style={{ color: "#FEC800" }}>{t("landing.hero.title2")}</span>
@@ -284,7 +284,7 @@ export default function LandingPage() {
       <section className="quote-section py-32 px-6" style={{ background: "#f4f5f9" }}>
         <div className="max-w-4xl mx-auto flex gap-8">
           <div className="relative w-1 shrink-0 rounded-full bg-[#E5E7EB] overflow-hidden">
-            <div className="quote-line absolute top-0 left-0 w-full bg-[#FEC800] rounded-full" style={{ height: "100%", transformOrigin: "top", scaleY: 0 }} />
+            <div className="quote-line absolute top-0 left-0 w-full bg-[#FEC800] rounded-full" style={{ height: "100%", transformOrigin: "top", transform: "scaleY(0)" }} />
           </div>
           <blockquote className="quote-text text-3xl md:text-4xl font-bold text-[#E5E7EB] leading-snug">
             &ldquo;{t("landing.quote")}&rdquo;
