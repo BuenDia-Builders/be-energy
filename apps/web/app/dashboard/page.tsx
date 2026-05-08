@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n-context"
 import { Sidebar } from "@/components/sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { User, Copy, Check, RefreshCw, ArrowDownLeft, ArrowUpRight, Users, Zap, TrendingUp, AlertCircle, AlertTriangle, Award, Leaf, Flame, Gauge, FileText, Building2 } from "lucide-react"
+import { User, Copy, Check, RefreshCw, ArrowDownLeft, ArrowUpRight, Users, Zap, TrendingUp, AlertCircle, AlertTriangle, Award, Leaf, Flame, Gauge, FileText, Building2, X, ChevronDown, ChevronUp } from "lucide-react"
 import { InfoTooltip } from "@/components/shared/info-tooltip"
 import { useAuth } from "@/lib/auth-context"
 import { RegisterCooperativeModal } from "@/components/modals/register-cooperative-modal"
@@ -20,6 +20,7 @@ import { useMyReadings } from "@/hooks/useMyReadings"
 import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button"
 import { useEnergyToken } from "@/hooks/useEnergyToken"
+
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
@@ -61,6 +62,8 @@ export default function DashboardPage() {
 
   const { getBalance } = useEnergyToken()
   const [hdropBalance, setHdropBalance] = useState<string | null>(null)
+
+  const [onboardingCollapsed, setOnboardingCollapsed] = useState(false)
 
   useEffect(() => {
     if (address) {
@@ -234,9 +237,17 @@ export default function DashboardPage() {
           )}
 
           {/* Onboarding Card — shown when user has no cooperative memberships */}
-          {session && (session.cooperative_ids.length === 0 || readings.length === 0) && (
+          {session && (
             <Card className="mb-4 md:mb-6 w-full max-w-full overflow-hidden border border-primary/20 bg-primary/5">
-              <CardHeader className="pb-3 px-4 sm:px-6 lg:px-8">
+              <CardHeader className="pb-3 px-4 sm:px-6 lg:px-8 relative mb-4 md:mb-6">
+                <button 
+                  onClick={() => setOnboardingCollapsed(!onboardingCollapsed)}
+                  className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+                  {onboardingCollapsed 
+                    ? <ChevronDown className="w-4 h-4" />
+                    : <ChevronUp className="w-4 h-4" />
+                  }
+                </button>
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                     <Building2 className="w-5 h-5 text-primary" />
@@ -247,7 +258,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </CardHeader>
-
+              {!onboardingCollapsed && (
               <CardContent className="pt-0 px-4 sm:px-6 lg:px-8 pb-4 md:pb-6 space-y-4 md:space-y-6">
                 
                 {/* Step Indicator */}
@@ -313,7 +324,8 @@ export default function DashboardPage() {
                   <div className="flex flex-col gap-2 rounded-lg border border-border bg-muted/50 p-4 min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("onboarding.createCoopTitle")}</p>
                     <p className="text-sm text-muted-foreground flex-1 break-words whitespace-normal">{t("onboarding.createCoopDesc")}</p>
-                    <Button size="sm" className="w-full mt-1" onClick={() => setShowRegisterCoop(true)}>
+                    <Button size="sm" className="w-full mt-1" onClick={() => setShowRegisterCoop(true)}
+                                                          disabled={session?.cooperative_ids.length > 0}>
                       <Building2 className="w-4 h-4" />
                       {t("onboarding.createCoopButton")}
                     </Button>
@@ -338,7 +350,7 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground break-words whitespace-normal">{t("onboarding.joinFootnote")}</p>
                   </div>
                 </div>
-              </CardContent>
+              </CardContent>)}
             </Card>
           )}
 
