@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { useI18n } from "@/lib/i18n-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -71,6 +72,7 @@ export function AddMeterModal({ isOpen, onClose, cooperativeId, onSuccess }: Add
         }
         throw new Error(errorMessages[data.error] || data.error || "Error al agregar el medidor")
       }
+      toast.success("Medidor agregado correctamente")
       setSuccess(true)
       onSuccess()
       setTimeout(handleClose, 1500)
