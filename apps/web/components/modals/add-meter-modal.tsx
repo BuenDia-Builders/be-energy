@@ -72,7 +72,7 @@ export function AddMeterModal({ isOpen, onClose, cooperativeId, onSuccess }: Add
         }
         throw new Error(errorMessages[data.error] || data.error || "Error al agregar el medidor")
       }
-      toast.success("Medidor agregado correctamente")
+      toast.success(t("addMeter.success"))
       setSuccess(true)
       onSuccess()
       setTimeout(handleClose, 1500)

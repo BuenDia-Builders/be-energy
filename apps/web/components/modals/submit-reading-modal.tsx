@@ -75,7 +75,7 @@ export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onS
         const data = await res.json()
         throw new Error(data.error || "Failed to submit reading")
       }
-      toast.success("Lectura enviada correctamente")
+      toast.success(t("submitReading.success"))
       setSuccess(true)
       onSuccess()
       setTimeout(handleClose, 1500)
