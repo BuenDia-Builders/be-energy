@@ -21,6 +21,7 @@ export interface AdminStats {
     status: string
     admin_stellar_address: string
     created_at: string
+    member_count: number
     certificates_count: number
     total_kwh: number
     pending: number
