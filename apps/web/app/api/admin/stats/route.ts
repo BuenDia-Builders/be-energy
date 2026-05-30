@@ -14,10 +14,10 @@ export async function GET() {
       .select("*")
       .order("created_at", { ascending: false })
 
-    // All prosumers count
-    const { count: memberCount } = await supabase
+    // All prosumers — full rows needed for per-cooperative grouping; count kept for global total
+    const { data: prosumers, count: memberCount } = await supabase
       .from("prosumers")
-      .select("id", { count: "exact", head: true })
+      .select("id, cooperative_id", { count: "exact" })
 
     // All certificates
     const { data: certificates } = await supabase
@@ -33,6 +33,7 @@ export async function GET() {
       const coopCerts = certs.filter((c) => c.cooperative_id === coop.id)
       return {
         ...coop,
+        member_count: (prosumers ?? []).filter((p) => p.cooperative_id === coop.id).length,
         certificates_count: coopCerts.length,
         total_kwh: coopCerts.reduce((sum, c) => sum + (c.total_kwh || 0), 0),
         pending: coopCerts.filter((c) => c.status === "pending").length,

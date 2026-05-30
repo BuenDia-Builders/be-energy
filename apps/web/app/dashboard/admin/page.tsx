@@ -145,7 +145,7 @@ export default function SuperAdminPage() {
                               <td className="py-3 font-medium">{coop.name}</td>
                               <td className="py-3">{coop.technology}</td>
                               <td className="py-3">{coop.province || "—"}</td>
-                              <td className="py-3">{coop.certificates_count > 0 ? "—" : "—"}</td>
+                              <td className="py-3">{coop.member_count}</td>
                               <td className="py-3">{coop.certificates_count}</td>
                               <td className="py-3">{coop.total_kwh.toLocaleString()}</td>
                               <td className="py-3"><StatusBadge status={coop.status} /></td>
