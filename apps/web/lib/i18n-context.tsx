@@ -120,6 +120,7 @@ const translations = {
     "certificates.stats.retired": "kWh Retirados",
     "certificates.stats.co2": "CO₂ Evitado (kg)",
     "certificates.stats.available": "Disponibles",
+    "certificates.stats.pending": "Pendientes",
     "certificates.status.pending": "Pendiente",
     "certificates.status.available": "Disponible",
     "certificates.status.retired": "Retirado",
@@ -137,6 +138,7 @@ const translations = {
     "certificates.tooltip.retired": "kWh cuyo certificado fue comprado y retirado (quemado on-chain)",
     "certificates.tooltip.co2": "Estimación de CO₂ evitado basada en 0.4 kg CO₂ por kWh renovable",
     "certificates.tooltip.available": "Certificados emitidos que aún no fueron comprados",
+    "certificates.tooltip.pending": "Certificados pendientes de emisión en blockchain",
 
     // Wallet Confirmation Modal
     "wallet.title": "Conectar Wallet",
@@ -509,6 +511,7 @@ const translations = {
     "certificates.stats.retired": "kWh Retired",
     "certificates.stats.co2": "CO₂ Avoided (kg)",
     "certificates.stats.available": "Available",
+    "certificates.stats.pending": "Pending",
     "certificates.status.pending": "Pending",
     "certificates.status.available": "Available",
     "certificates.status.retired": "Retired",
@@ -526,6 +529,7 @@ const translations = {
     "certificates.tooltip.retired": "kWh whose certificate was purchased and retired (burned on-chain)",
     "certificates.tooltip.co2": "CO₂ avoided estimate based on 0.4 kg CO₂ per renewable kWh",
     "certificates.tooltip.available": "Issued certificates not yet purchased",
+    "certificates.tooltip.pending": "Certificates pending issuance on blockchain",
 
     // Wallet Confirmation Modal
     "wallet.title": "Connect Wallet",

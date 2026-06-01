@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
   const totalKwhRetired = (retirements ?? []).reduce((s, r) => s + r.kwh_retired, 0)
 
   const certificatesAvailable = (allCerts ?? []).filter((c) => c.status === "available").length
+  const certificatesPending = (allCerts ?? []).filter((c) => c.status === "pending").length
   const certificatesRetired = (allCerts ?? []).filter(
     (c) => c.status === "retired" || retiredCertIds.has(c.id)
   ).length
@@ -77,6 +78,7 @@ export async function GET(req: NextRequest) {
     total_kwh_retired: Math.round(totalKwhRetired * 100) / 100,
     co2_avoided_kg: Math.round(totalKwhRetired * CO2_FACTOR_AR * 100) / 100,
     certificates_available: certificatesAvailable,
+    certificates_pending: certificatesPending,
     certificates_retired: certificatesRetired,
     by_technology: byTechnology,
     by_cooperative: byCooperative,
