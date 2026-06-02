@@ -10,7 +10,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Award, Zap, Flame, Leaf, ExternalLink, ChevronDown, ChevronUp, AlertCircle } from "lucide-react"
+import { ArrowLeft, Award, Zap, Flame, Leaf, Clock, ExternalLink, ChevronDown, ChevronUp, AlertCircle } from "lucide-react"
 import { InfoTooltip } from "@/components/shared/info-tooltip"
 import { Spinner } from "@/components/ui/spinner"
 import { useAuth } from "@/lib/auth-context"
@@ -168,7 +168,7 @@ export default function CertificatesPage() {
   });
 
   const handleStatusQuickFilter = (
-    nextStatus: "all" | "available" | "retired",
+    nextStatus: "all" | "pending" | "available" | "retired",
   ) => {
     if (nextStatus === "all") {
       setStatusFilter("all");
@@ -216,7 +216,7 @@ export default function CertificatesPage() {
 
           {/* Compact Stats */}
           {stats && !statsError && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
               <CertificateStatCard
                 value={stats.total_kwh_certified.toLocaleString()}
                 label={t("certificates.stats.certified")}
@@ -248,6 +248,18 @@ export default function CertificatesPage() {
                 icon={<Leaf className="w-5 h-5 text-web3-purple" />}
                 containerClassName="bg-web3-purple/10 border-web3-purple/20"
                 valueClassName="text-web3-purple"
+              />
+
+              <CertificateStatCard
+                value={stats.certificates_pending}
+                label={t("certificates.stats.pending")}
+                tooltip={t("certificates.tooltip.pending")}
+                icon={<Clock className="w-5 h-5 text-blue-500" />}
+                containerClassName="bg-blue-500/10 border-blue-500/20"
+                valueClassName="text-blue-500"
+                interactive
+                isActive={statusFilter === "pending"}
+                onClick={() => handleStatusQuickFilter("pending")}
               />
 
               <CertificateStatCard

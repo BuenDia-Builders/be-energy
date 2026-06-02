@@ -7,6 +7,7 @@ export interface CertificateStats {
   total_kwh_retired: number
   co2_avoided_kg: number
   certificates_available: number
+  certificates_pending: number
   certificates_retired: number
   by_technology: Record<string, { certified_kwh: number; retired_kwh: number }>
   by_cooperative: Record<string, { name: string; certified_kwh: number; retired_kwh: number }>
