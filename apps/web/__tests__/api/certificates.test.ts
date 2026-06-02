@@ -7,7 +7,7 @@ const COOP_ID = "00000000-0000-0000-0000-000000000001"
 const { mockSingle, mockOrder, mockFrom, mockLimit } = vi.hoisted(() => {
   const mockSingle = vi.fn()
   const mockLimit = vi.fn(() => ({ data: [] as unknown[], error: null }))
-  const mockOrder = vi.fn(() => ({ data: [], error: null }))
+  const mockOrder = vi.fn(() => ({ data: [], error: null, single: mockSingle, order: mockOrder, eq: mockEq, gte: mockEq, lte: mockEq, limit: mockLimit }))
   const mockEq: ReturnType<typeof vi.fn> = vi.fn(() => ({
     order: mockOrder,
     eq: mockEq,
