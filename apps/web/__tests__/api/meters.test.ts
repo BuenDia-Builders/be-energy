@@ -8,7 +8,7 @@ const { mockSingle, mockOrder, mockIn, mockFrom } = vi.hoisted(() => {
   const mockSingle = vi.fn()
   const mockIn = vi.fn(() => ({ data: [], error: null }))
   const mockOrder = vi.fn(() => ({ data: [], error: null, in: mockIn }))
-  const mockEq: ReturnType<typeof vi.fn> = vi.fn(() => ({ order: mockOrder, eq: mockEq, in: mockIn }))
+  const mockEq: ReturnType<typeof vi.fn> = vi.fn(() => ({ single: mockSingle, order: mockOrder, eq: mockEq, in: mockIn }))
   const mockSelect = vi.fn(() => ({ single: mockSingle }))
   const mockInsert = vi.fn(() => ({ select: mockSelect }))
   const mockFrom = vi.fn(() => ({
@@ -107,6 +107,7 @@ describe("POST /api/meters", () => {
       technology: "solar",
       capacity_kw: 5,
     }
+    mockSingle.mockResolvedValueOnce({ data: { id: "prosumer-id" }, error: null })
     mockSingle.mockResolvedValueOnce({ data: fakeMeter, error: null })
 
     const res = await POST(
