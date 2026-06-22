@@ -4,8 +4,6 @@
 
 [![Deployed on Vercel](https://img.shields.io/badge/deployed-vercel-black)](https://be-energy-six.vercel.app)
 [![Docs](https://img.shields.io/badge/docs-GitBook-blue)](https://marias-organization-50.gitbook.io/beenergy/)
-[![Stellar Wave](https://img.shields.io/badge/Stellar-Wave%20%232-blueviolet)](https://www.drips.network/wave)
-[![DoraHacks](https://img.shields.io/badge/DoraHacks-Featured-orange)](https://dorahacks.io/buidl/36793)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
 
 BeEnergy is a cooperative management dashboard + on-chain certification infrastructure for renewable energy on Stellar. Cooperatives use the dashboard to manage members, meters, readings, and statistics — and BeEnergy tokenizes their production as proto-certificates sold to external buyers (companies, ESG funds, climate programs).
