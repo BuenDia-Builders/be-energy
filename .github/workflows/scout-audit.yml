@@ -1,0 +1,55 @@
+name: Scout Security Audit
+
+on:
+  pull_request:
+    paths:
+      - "apps/contracts/**/*.rs"
+      - "apps/contracts/**/Cargo.toml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/contracts/**"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scout:
+    name: Scout Audit
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/contracts
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cargo cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/contracts
+
+      - name: Install cargo-scout-audit
+        run: cargo install cargo-scout-audit
+
+      - name: Run Scout
+        run: cargo scout-audit --output-format sarif --output-path scout-results.sarif
+        continue-on-error: true
+
+      - name: Upload results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: apps/contracts/scout-results.sarif
+
+      # Uncomment when ready to block PRs on findings:
+      # - name: Fail on vulnerabilities
+      #   run: cargo scout-audit
