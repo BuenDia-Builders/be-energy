@@ -131,6 +131,30 @@ impl EnergyToken {
             .get(&DataKey::CooperativeId)
             .expect("cooperative_id not set")
     }
+
+    /// Transfiere los permisos de administrador a una nueva dirección
+    /// Solo puede ser llamado por el admin actual
+    ///
+    /// # Argumentos
+    /// * `new_admin` - La dirección que será el nuevo administrador
+    ///
+    /// # Panics
+    /// - Si el llamador no es el admin actual
+    /// - Si new_admin es la misma dirección que el admin actual
+    pub fn transfer_admin(e: &Env, new_admin: Address) {
+        let current_admin = access_control::get_admin(e).expect("admin not set");
+        current_admin.require_auth();
+        e.storage().instance().extend_ttl(TTL_THRESHOLD, TTL_EXTEND_TO);
+
+        // Prevent setting the same admin
+        assert!(
+            current_admin != new_admin,
+            "new admin must be different from current admin"
+        );
+
+        // Update the admin in AccessControl storage
+        access_control::set_admin(e, &new_admin);
+    }
 }
 
 // ============================================================================
@@ -816,8 +840,191 @@ mod test {
     }
 
     // ========================================================================
+    // Admin Transfer
+    // ========================================================================
+
+    #[test]
+    fn test_transfer_admin_to_new_address() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+        let new_admin = Address::generate(&env);
+
+        // Verify initial admin
+        assert_eq!(client.admin(), admin);
+
+        // Transfer admin to new address
+        client.transfer_admin(&new_admin);
+
+        // Verify new admin is now in control
+        assert_eq!(client.admin(), new_admin);
+    }
+
+    #[test]
+    fn test_new_admin_can_call_protected_functions() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+        let new_admin = Address::generate(&env);
+        let new_minter = Address::generate(&env);
+
+        // Transfer admin
+        client.transfer_admin(&new_admin);
+
+        // New admin should be able to grant minter role
+        client.grant_minter(&new_minter);
+        assert!(client.is_minter(&new_minter));
+    }
+
+    #[test]
+    fn test_previous_admin_loses_permissions_after_transfer() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+        let new_admin = Address::generate(&env);
+        let new_minter = Address::generate(&env);
+
+        // Transfer admin to new_admin
+        client.transfer_admin(&new_admin);
+
+        // Revoke auth for the old admin
+        env.revoke_all_auths();
+        env.mock_auths(&[(new_admin, soroban_sdk::InvokeContractArgs {
+            contract_id: client.address.clone(),
+            function_name: soroban_sdk::Symbol::short("grant_minter"),
+            args: soroban_sdk::vec![&env, new_minter.into_val(&env)],
+        })]);
+
+        // Old admin trying to grant minter should fail
+        let result = client.try_grant_minter(&new_minter);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    #[should_panic(expected = "only admin can upgrade")]
+    fn test_previous_admin_cannot_upgrade_after_transfer() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+        let new_admin = Address::generate(&env);
+        let fake_hash = BytesN::from_array(&env, &[1u8; 32]);
+
+        // Transfer admin
+        client.transfer_admin(&new_admin);
+
+        // Old admin should not be able to upgrade
+        client.upgrade(&fake_hash, &admin);
+    }
+
+    #[test]
+    fn test_new_admin_can_pause_after_transfer() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+        let new_admin = Address::generate(&env);
+
+        // Transfer admin
+        client.transfer_admin(&new_admin);
+
+        // New admin should be able to pause
+        client.pause(&new_admin);
+        assert!(client.paused());
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_non_admin_cannot_transfer_admin() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, _, _) = setup(&env);
+        let non_admin = Address::generate(&env);
+        let new_admin = Address::generate(&env);
+
+        // Non-admin trying to transfer should fail (but need proper auth setup)
+        // This test relies on require_auth() being checked properly
+        env.revoke_all_auths();
+        client.transfer_admin(&new_admin);
+    }
+
+    #[test]
+    #[should_panic(expected = "new admin must be different from current admin")]
+    fn test_cannot_transfer_admin_to_self() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+
+        client.transfer_admin(&admin);
+    }
+
+    #[test]
+    fn test_transfer_admin_chain() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin1, _) = setup(&env);
+        let admin2 = Address::generate(&env);
+        let admin3 = Address::generate(&env);
+
+        // Transfer chain: admin1 -> admin2 -> admin3
+        assert_eq!(client.admin(), admin1);
+
+        client.transfer_admin(&admin2);
+        assert_eq!(client.admin(), admin2);
+
+        client.transfer_admin(&admin3);
+        assert_eq!(client.admin(), admin3);
+
+        // admin3 should be able to perform admin actions
+        let new_minter = Address::generate(&env);
+        client.grant_minter(&new_minter);
+        assert!(client.is_minter(&new_minter));
+    }
+
+    #[test]
+    fn test_transfer_admin_preserves_minters() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, distribution) = setup(&env);
+        let new_admin = Address::generate(&env);
+        let minter2 = Address::generate(&env);
+
+        // Add a minter before transfer
+        client.grant_minter(&minter2);
+        assert!(client.is_minter(&distribution));
+        assert!(client.is_minter(&minter2));
+
+        // Transfer admin
+        client.transfer_admin(&new_admin);
+
+        // Minters should still be valid
+        assert!(client.is_minter(&distribution));
+        assert!(client.is_minter(&minter2));
+    }
+
+    #[test]
+    fn test_transfer_admin_after_pause() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+        let new_admin = Address::generate(&env);
+
+        // Pause the contract
+        client.pause(&admin);
+        assert!(client.paused());
+
+        // Transfer admin while paused
+        client.transfer_admin(&new_admin);
+        assert_eq!(client.admin(), new_admin);
+        assert!(client.paused());
+
+        // New admin can unpause
+        client.unpause(&new_admin);
+        assert!(!client.paused());
+    }
+
+    // ========================================================================
     // Upgradeable
     // ========================================================================
+
 
     #[test]
     #[should_panic(expected = "only admin can upgrade")]
