@@ -237,7 +237,7 @@ export default function CooperativeAdminPage() {
                     <p className="text-xs text-muted-foreground">
                       {t("coopAdmin.members")}
                       <button
-                        onClick={() => {/* TODO: navigate to members page */}}
+                        onClick={() => router.push(`/dashboard/cooperative/members?coop=${selectedCoopId}`)}
                         className="ml-2 text-primary hover:underline"
                       >
                         {t("coopAdmin.viewMembers")} →

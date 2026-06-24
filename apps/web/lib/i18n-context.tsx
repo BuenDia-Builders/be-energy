@@ -389,6 +389,23 @@ const translations = {
     "registerCoop.ctaDesc": "Registra tu cooperativa energética para gestionar medidores, lecturas y certificados",
     "registerCoop.ctaButton": "Registrar Cooperativa",
 
+    // Members Management
+    "members.title": "Gestión de Miembros",
+    "members.addMember": "Agregar Miembro",
+    "members.walletAddress": "Dirección Wallet",
+    "members.shareAllocation": "Participación %",
+    "members.allocationUsed": "Capacidad asignada",
+    "members.allocationRemaining": "Restante",
+    "members.allocationExceeds": "La participación supera el 100%. Reducí la capacidad.",
+    "members.pendingChain": "Confirmando en la blockchain...",
+    "members.success": "Miembro agregado exitosamente",
+    "members.name": "Nombre (opcional)",
+    "members.capacityKw": "Capacidad del panel (kW)",
+    "members.submit": "Agregar Miembro",
+    "members.role": "Rol",
+    "members.noCapacityHint": "Ingresá la capacidad instalada del panel solar del miembro",
+    "members.capacityGuard": "No hay capacidad total registrada para calcular la participación",
+
     // Onboarding Card
     "onboarding.title": "¡Bienvenido a Be Energy!",
     "onboarding.subtitle": "Completá estos pasos para empezar a certificar tu energía renovable.",
@@ -779,6 +796,23 @@ const translations = {
     "registerCoop.cta": "Register your cooperative to get started",
     "registerCoop.ctaDesc": "Register your energy cooperative to manage meters, readings and certificates",
     "registerCoop.ctaButton": "Register Cooperative",
+
+    // Members Management
+    "members.title": "Member Management",
+    "members.addMember": "Add Member",
+    "members.walletAddress": "Wallet Address",
+    "members.shareAllocation": "Share %",
+    "members.allocationUsed": "Capacity allocated",
+    "members.allocationRemaining": "Remaining",
+    "members.allocationExceeds": "Share exceeds 100%. Reduce the capacity.",
+    "members.pendingChain": "Confirming on-chain...",
+    "members.success": "Member added successfully",
+    "members.name": "Name (optional)",
+    "members.capacityKw": "Panel capacity (kW)",
+    "members.submit": "Add Member",
+    "members.role": "Role",
+    "members.noCapacityHint": "Enter this member's installed solar panel capacity",
+    "members.capacityGuard": "No total capacity registered to compute share",
 
     // Onboarding Card
     "onboarding.title": "Welcome to Be Energy!",
