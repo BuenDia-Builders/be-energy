@@ -134,6 +134,14 @@ impl EnergyDistribution {
             return Err(DistributionError::PercentsMustSumTo100);
         }
 
+        // Limpiar datos de miembros anteriores para evitar datos huérfanos
+        if let Some(old_list) = env.storage().instance().get::<_, Vec<Address>>(&DataKey::MemberList) {
+            for old_member in old_list.iter() {
+                env.storage().persistent().remove(&DataKey::Member(old_member.clone()));
+                env.storage().persistent().remove(&DataKey::MemberPercent(old_member.clone()));
+            }
+        }
+
         // Crear lista de miembros
         let mut member_list: Vec<Address> = Vec::new(&env);
 
@@ -631,5 +639,144 @@ mod test {
         let result = client.try_add_members_multisig(&approvers, &members, &percents);
         assert!(result.is_ok());
         assert!(client.are_members_initialized());
+    }
+
+    // ========================================================================
+    // Add Members Multisig — Stale Data Cleanup
+    // ========================================================================
+
+    #[test]
+    fn test_replace_member_cleans_stale_data() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+
+        let a = Address::generate(&env);
+        let b = Address::generate(&env);
+        let c = Address::generate(&env);
+
+        // First call: A(60%) and B(40%)
+        let approvers = vec![&env, a.clone(), b.clone(), admin.clone()];
+        let members1 = vec![&env, a.clone(), b.clone()];
+        let percents1 = vec![&env, 60, 40];
+        client.add_members_multisig(&approvers, &members1, &percents1);
+
+        assert!(client.is_member(&a));
+        assert!(client.is_member(&b));
+        assert_eq!(client.get_member_percent(&a), Some(60));
+        assert_eq!(client.get_member_percent(&b), Some(40));
+
+        // Second call: replace B with C — A(70%) and C(30%)
+        let approvers2 = vec![&env, a.clone(), c.clone(), admin.clone()];
+        let members2 = vec![&env, a.clone(), c.clone()];
+        let percents2 = vec![&env, 70, 30];
+        client.add_members_multisig(&approvers2, &members2, &percents2);
+
+        // A keeps membership with updated percent
+        assert!(client.is_member(&a));
+        assert_eq!(client.get_member_percent(&a), Some(70));
+        // C is now a member
+        assert!(client.is_member(&c));
+        assert_eq!(client.get_member_percent(&c), Some(30));
+        // B is no longer a member and has no percent
+        assert!(!client.is_member(&b));
+        assert_eq!(client.get_member_percent(&b), None);
+        // Member list only contains A and C
+        let member_list = client.get_member_list();
+        assert_eq!(member_list.len(), 2);
+        assert_eq!(member_list.get(0).unwrap(), a);
+        assert_eq!(member_list.get(1).unwrap(), c);
+    }
+
+    #[test]
+    fn test_full_replacement_removes_all_old_members() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+
+        let m1 = Address::generate(&env);
+        let m2 = Address::generate(&env);
+        let m3 = Address::generate(&env);
+        let m4 = Address::generate(&env);
+        let m5 = Address::generate(&env);
+
+        // First call: three members
+        let approvers = vec![&env, m1.clone(), m2.clone(), admin.clone()];
+        let members1 = vec![&env, m1.clone(), m2.clone(), m3.clone()];
+        let percents1 = vec![&env, 50, 30, 20];
+        client.add_members_multisig(&approvers, &members1, &percents1);
+
+        assert!(client.is_member(&m1));
+        assert!(client.is_member(&m2));
+        assert!(client.is_member(&m3));
+
+        // Second call: entirely different set of members
+        let approvers2 = vec![&env, m4.clone(), m5.clone(), admin.clone()];
+        let members2 = vec![&env, m4.clone(), m5.clone()];
+        let percents2 = vec![&env, 60, 40];
+        client.add_members_multisig(&approvers2, &members2, &percents2);
+
+        // Old members are gone
+        assert!(!client.is_member(&m1));
+        assert!(!client.is_member(&m2));
+        assert!(!client.is_member(&m3));
+        assert_eq!(client.get_member_percent(&m1), None);
+        assert_eq!(client.get_member_percent(&m2), None);
+        assert_eq!(client.get_member_percent(&m3), None);
+        // New members present
+        assert!(client.is_member(&m4));
+        assert!(client.is_member(&m5));
+        assert_eq!(client.get_member_percent(&m4), Some(60));
+        assert_eq!(client.get_member_percent(&m5), Some(40));
+        // Member list only has new members
+        let member_list = client.get_member_list();
+        assert_eq!(member_list.len(), 2);
+        assert_eq!(member_list.get(0).unwrap(), m4);
+        assert_eq!(member_list.get(1).unwrap(), m5);
+    }
+
+    #[test]
+    fn test_partial_replacement_mixed_members() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+
+        let a = Address::generate(&env);
+        let b = Address::generate(&env);
+        let c = Address::generate(&env);
+        let d = Address::generate(&env);
+
+        // First call: A(25%), B(25%), C(25%), D(25%)
+        let approvers = vec![&env, a.clone(), b.clone(), admin.clone()];
+        let members1 = vec![&env, a.clone(), b.clone(), c.clone(), d.clone()];
+        let percents1 = vec![&env, 25, 25, 25, 25];
+        client.add_members_multisig(&approvers, &members1, &percents1);
+
+        // Second call: A stays, C stays, B leaves, D leaves, E is added
+        let e = Address::generate(&env);
+        let approvers2 = vec![&env, a.clone(), c.clone(), admin.clone()];
+        let members2 = vec![&env, a.clone(), c.clone(), e.clone()];
+        let percents2 = vec![&env, 40, 40, 20];
+        client.add_members_multisig(&approvers2, &members2, &percents2);
+
+        // A and C remain with updated percents
+        assert!(client.is_member(&a));
+        assert_eq!(client.get_member_percent(&a), Some(40));
+        assert!(client.is_member(&c));
+        assert_eq!(client.get_member_percent(&c), Some(40));
+        // E is new
+        assert!(client.is_member(&e));
+        assert_eq!(client.get_member_percent(&e), Some(20));
+        // B and D are gone
+        assert!(!client.is_member(&b));
+        assert_eq!(client.get_member_percent(&b), None);
+        assert!(!client.is_member(&d));
+        assert_eq!(client.get_member_percent(&d), None);
+        // Member list only has A, C, E
+        let member_list = client.get_member_list();
+        assert_eq!(member_list.len(), 3);
+        assert_eq!(member_list.get(0).unwrap(), a);
+        assert_eq!(member_list.get(1).unwrap(), c);
+        assert_eq!(member_list.get(2).unwrap(), e);
     }
 }
