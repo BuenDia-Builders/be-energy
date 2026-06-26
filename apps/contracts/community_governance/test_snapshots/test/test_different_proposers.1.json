@@ -17,6 +17,9 @@
               "args": [
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                },
+                {
+                  "u32": 5
                 }
               ]
             }
@@ -137,6 +140,18 @@
                     },
                     {
                       "key": {
+                        "symbol": "status"
+                      },
+                      "val": {
+                        "vec": [
+                          {
+                            "symbol": "Pending"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "title"
                       },
                       "val": {
@@ -223,6 +238,18 @@
                     },
                     {
                       "key": {
+                        "symbol": "status"
+                      },
+                      "val": {
+                        "vec": [
+                          {
+                            "symbol": "Pending"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "title"
                       },
                       "val": {
@@ -299,6 +326,18 @@
                         },
                         "val": {
                           "u32": 2
+                        }
+                      },
+                      {
+                        "key": {
+                          "vec": [
+                            {
+                              "symbol": "QuorumVotes"
+                            }
+                          ]
+                        },
+                        "val": {
+                          "u32": 5
                         }
                       }
                     ]
