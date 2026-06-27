@@ -3,6 +3,7 @@ members = [
     "energy_token",
     "energy_distribution",
     "community_governance",
+    "cooperative_factory",
 ]
 resolver = "2"
 
@@ -38,3 +39,4 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+overflow-checks = true
