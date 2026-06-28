@@ -17,6 +17,8 @@ const INSTANCE_TTL_THRESHOLD: u32 = 50_000;
 const INSTANCE_TTL_EXTEND_TO: u32 = 100_000;
 const PERSISTENT_TTL_THRESHOLD: u32 = 50_000;
 const PERSISTENT_TTL_EXTEND_TO: u32 = 200_000;
+const MAX_MEMBERS: u32 = 50;
+const MAX_APPROVERS: u32 = 20;
 
 /// Errores del contrato de distribución de energía
 #[contracterror]
@@ -31,6 +33,10 @@ pub enum DistributionError {
     PercentsMustSumTo100 = 3,
     /// Los miembros aún no han sido inicializados
     MembersNotInitialized = 4,
+    /// Se superó el límite máximo de miembros por cooperativa
+    TooManyMembers = 5,
+    /// Se superó el límite máximo de aprobadores
+    TooManyApprovers = 6,
 }
 
 #[contracttype]
@@ -116,6 +122,14 @@ impl EnergyDistribution {
 
         if approvers.len() < required {
             return Err(DistributionError::NotEnoughApprovers);
+        }
+
+        if approvers.len() > MAX_APPROVERS {
+            return Err(DistributionError::TooManyApprovers);
+        }
+
+        if members.len() > MAX_MEMBERS {
+            return Err(DistributionError::TooManyMembers);
         }
 
         // Requerir autenticación de todos los aprobadores
@@ -442,6 +456,47 @@ mod test {
 
         let result = client.try_add_members_multisig(&approvers, &members, &percents);
         assert_eq!(result, Err(Ok(DistributionError::MemberPercentMismatch)));
+    }
+
+    #[test]
+    fn test_add_members_too_many_approvers() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, _, _) = setup(&env);
+
+        // 21 approvers exceeds MAX_APPROVERS (20)
+        let mut approvers_vec = soroban_sdk::Vec::new(&env);
+        for _ in 0..21u32 {
+            approvers_vec.push_back(Address::generate(&env));
+        }
+        let m1 = Address::generate(&env);
+        let members = vec![&env, m1.clone()];
+        let percents = vec![&env, 100u32];
+
+        let result = client.try_add_members_multisig(&approvers_vec, &members, &percents);
+        assert_eq!(result, Err(Ok(DistributionError::TooManyApprovers)));
+    }
+
+    #[test]
+    fn test_add_members_too_many_members() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let (client, admin, _) = setup(&env);
+
+        // 51 members exceeds MAX_MEMBERS (50)
+        let mut members_vec: soroban_sdk::Vec<Address> = soroban_sdk::Vec::new(&env);
+        let mut percents_vec: soroban_sdk::Vec<u32> = soroban_sdk::Vec::new(&env);
+        for _ in 0..51u32 {
+            members_vec.push_back(Address::generate(&env));
+            percents_vec.push_back(1u32);
+        }
+        // percents don't sum to 100, but TooManyMembers should fire first
+        let a2 = Address::generate(&env);
+        let a3 = Address::generate(&env);
+        let approvers = vec![&env, a2.clone(), a3.clone(), admin.clone()];
+
+        let result = client.try_add_members_multisig(&approvers, &members_vec, &percents_vec);
+        assert_eq!(result, Err(Ok(DistributionError::TooManyMembers)));
     }
 
     #[test]
