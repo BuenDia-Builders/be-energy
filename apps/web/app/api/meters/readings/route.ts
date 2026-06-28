@@ -5,6 +5,10 @@ import { validateBody } from "@/lib/validation/validate"
 import { bulkMeterReadingsSchema } from "@/lib/validation/schemas"
 import { safeDbError, safeCatchError } from "@/lib/errors/safe-error"
 
+function getNetInjectedKwh(kwhGenerated: number, kwhSelfConsumed: number) {
+  return Math.max(0, kwhGenerated - kwhSelfConsumed)
+}
+
 // POST: authenticated — admin or owner of the meter
 export async function POST(req: NextRequest) {
   try {
@@ -40,18 +44,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 
-    const rows = readings.map((r) => ({
-      meter_id,
-      cooperative_id: meter.cooperative_id,
-      kwh_generated: r.kwh_generated,
-      kwh_self_consumed: r.kwh_self_consumed ?? null,
-      power_watts: r.power_watts ?? null,
-      interval_minutes: r.interval_minutes ?? 15,
-      reading_timestamp: r.reading_timestamp ?? null,
-      reading_date: r.reading_date ?? null,
-      source: "meter",
-      status: "pending",
-    }))
+    const rows = readings.map((r) => {
+      const kwhGenerated = r.kwh_generated ?? r.kwh_injected!
+      const kwhInjected = r.kwh_injected ?? getNetInjectedKwh(kwhGenerated, r.kwh_self_consumed ?? 0)
+
+      return {
+        meter_id,
+        cooperative_id: meter.cooperative_id,
+        kwh_generated: kwhGenerated,
+        kwh_injected: kwhInjected,
+        kwh_self_consumed: r.kwh_self_consumed ?? null,
+        power_watts: r.power_watts ?? null,
+        interval_minutes: r.interval_minutes ?? 15,
+        reading_timestamp: r.reading_timestamp ?? null,
+        reading_date: r.reading_date ?? null,
+        source: "meter",
+        status: "pending",
+      }
+    })
 
     const { data, error: insertError } = await supabase
       .from("readings")

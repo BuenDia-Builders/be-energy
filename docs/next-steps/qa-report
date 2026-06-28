@@ -1,0 +1,210 @@
+# QA Report — BeEnergy v0.4.2 (Wave #5)
+
+**Fecha última actualización:** Junio 2026  
+**Testeado por:** romina-iurchik  
+**Rama:** `main` (develop mergeado)  
+**Red:** Stellar Testnet  
+
+---
+
+## Resumen ejecutivo
+
+| | Cantidad |
+|---|---|
+| ✅ Funcionalidades verificadas | 30 |
+| ✅ Bugs resueltos Wave #5 | 19 |
+| 🐛 Bugs pendientes | 8 |
+| ⚠️ Issues de UX | 5 |
+| 🗄️ Issues de base de datos | 3 |
+| 📋 Observaciones | 4 |
+
+---
+
+## Mapa de rutas testeadas
+
+```
+/                         → Landing page
+/dashboard                → Dashboard miembro (personal)
+/consumption              → Historial de generación
+/certificates             → Certificados de energía
+/dashboard/cooperative    → Panel admin cooperativa
+/dashboard/admin          → Panel super admin (BeEnergy)
+```
+
+---
+
+## ✅ Bugs resueltos (romina-iurchik)
+
+| # | Descripción | Commit |
+|---|---|---|
+| BUG-01 | Abeja flotante desactivada | 42e30de |
+| BUG-02 | Tachado en onboarding removido | baff304 |
+| BUG-03 | Campos País/Provincia/Ciudad en cooperativa | 1243a27 |
+| BUG-04 | Logo abeja en sidebar y mobile sidebar | e297db7 |
+| BUG-05 | Logo navega al dashboard con Link | 6097645 |
+| BUG-06 | Fechas futuras bloqueadas en lecturas | 6097645 |
+| BUG-07 | Error "No verified readings" traducido + hint | d8bf4cb |
+| BUG-08 | Error "Validation failed" con mensaje claro | d8bf4cb |
+| BUG-09 | Número de serie obligatorio en medidor | d8bf4cb |
+| BUG-10 | Campo Potencia ocultado en lecturas | d8bf4cb |
+| BUG-11 | Fix timeout mint y retire (txTooLate) | bacc69e |
+| BUG-12 | Generación Total muestra certificados vs por certificar | - |
+| BUG-13 | Onboarding colapsable con chevron | 607f44f |
+| BUG-14 | Hero landing con foco en empresa ESG | - |
+| BUG-15 | Math.max(0) para evitar kWh negativos | - |
+
+## ✅ Bugs resueltos (contributors Wave #5)
+
+| # | Descripción | Contributor | PR |
+|---|---|---|---|
+| BUG-W5-01 | Stat card "Pendientes" como filtro en `/certificates` | licette32 | #164 |
+| BUG-W5-04 | Feedback de éxito en modal "Agregar Medidor" | KaruG1999 | #162 |
+| BUG-W5-06 | Columna Miembros vacía en tabla admin | KaruG1999 | #163 |
+| BUG-W5-12 | Tests fallando (.order() y .single() mocks) | licette32 | #165 |
+
+---
+
+## 🐛 Bugs pendientes
+
+### BUG-W5-02 — Fecha inválida en certificado existente
+**Ruta:** `/certificates`  
+**Severidad:** Baja (dato sucio pre-fix)  
+**Descripción:** Certificado muestra `Período: 9 mar 2028 — 19 mar 2026` — fecha de inicio posterior a fecha de fin.  
+**Fix sugerido:** Limpiar dato en Supabase.
+
+---
+
+### BUG-W5-03 — Datos de IntTest Coop visibles
+**Ruta:** `/certificates`, `/dashboard/admin`  
+**Severidad:** Media  
+**Descripción:** Múltiples cooperativas `IntTest Coop 177...` visibles — son datos de tests de integración.  
+**Fix sugerido:** Cleanup en Supabase.
+
+---
+
+### BUG-W5-05 — "Ver miembros →" no navega
+**Ruta:** `/dashboard/cooperative`  
+**Severidad:** Media  
+**Descripción:** El link "Ver miembros →" no hace nada al hacer click. La ruta `/dashboard/cooperative/members` no está implementada.
+
+---
+
+### BUG-W5-07 — `SUPER_ADMIN_ADDRESSES` no documentado
+**Ruta:** `.env`, README  
+**Severidad:** Media  
+**Descripción:** Variable de entorno no documentada en `.env.example` ni en README.  
+**Fix sugerido:** Documentar en ambos archivos.
+
+---
+
+### BUG-W5-08 — Hydration mismatch en DashboardHeader
+**Ruta:** Todas las rutas con `DashboardHeader`  
+**Severidad:** Baja  
+**Descripción:** IDs de Radix UI no coinciden entre SSR y cliente. Warning en consola, no afecta funcionalidad.
+
+---
+
+### BUG-W5-09 — Double counting risk (sin fix)
+**Ruta:** `/api/mint`, `/api/certificates`  
+**Severidad:** Alta  
+**Descripción:** El mint legacy usa generación bruta, `kwh_self_consumed` no se usa para restringir certificación.  
+**Fix sugerido:** Wave #5-A (validar kwh_self_consumed) + Wave #5-B (provenance de lecturas).
+
+---
+
+### BUG-W5-10 — Actividad Reciente no carga en Vercel
+**Ruta:** `/activity`  
+**Severidad:** Media  
+**Descripción:** "No se pudo cargar el historial de pagos" en producción. Posible problema de CSP o CORS con Horizon.
+
+---
+
+### BUG-W5-11 — Retire falla en Vercel
+**Ruta:** `/certificates` → Retirar Certificado  
+**Severidad:** Alta  
+**Descripción:** "Internal server error" al intentar retirar certificado en Vercel.
+
+---
+
+## ⚠️ Issues de UX
+
+### UX-02 — Campo Capacidad sin hint de unidad
+"Capacidad (kW)" en Agregar Medidor no tiene validación de rango. Fácil confundir W con kW.
+
+### UX-03 — Dashboard miembro no diferencia por rol
+El `/dashboard` muestra la misma vista para miembro y admin. (Issue #012)
+
+### UX-04 — Gráfico de Generación muestra 0 kWh
+El gráfico muestra la semana actual pero las lecturas verificadas son de meses anteriores. Sin indicación clara de período sin datos.
+
+### UX-05 — "Dashboard" en inglés en sidebar
+La palabra "Dashboard" debería ser "Panel" o "Inicio" en español.
+
+### UX-06 — "Testnet" no comprensible para usuarios no técnicos
+Debería decir "Modo de prueba" o "Simulación".
+
+---
+
+## 🗄️ Issues de base de datos
+
+### DB-01 — `stellar_address` sin FK en events, meters y cooperatives
+**Severidad:** Media  
+**Fix sugerido:** Agregar FK o validación a nivel de API.
+
+### DB-02 — `serial_number` en meters sin constraint UNIQUE
+**Severidad:** Alta  
+**Fix sugerido:**
+```sql
+ALTER TABLE meters ADD CONSTRAINT meters_serial_number_unique UNIQUE (serial_number);
+```
+
+### DB-03 — Tablas de soporte sin documentar
+**Severidad:** Baja  
+- `audit_log` — trazabilidad de cambios
+- `rate_limits` — prevención de abuso de API
+- `auth_challenges` — flujo SEP-0053 (Freighter auth)
+
+---
+
+## 📋 Observaciones generales
+
+1. **Datos de prueba en producción** — Datos de cooperativas simuladas visibles en panel admin.
+2. **`SUPER_ADMIN_ADDRESSES`** — variable de entorno no documentada.
+3. **Workaround timeout** — `.setTimeout(250)` en `/api/mint` y `/api/certificates/retire`. Pendiente reemplazar por timeout dinámico basado en ledger.
+4. **Landing page** — Hero actualizado con foco en empresa ESG. Secciones "Qué hacemos" y "Cómo funciona" pendientes.
+5. **Performance — member count** — El PR #163 filtra prosumers en memoria. Cuando la plataforma escale conviene reemplazar por query SQL con `GROUP BY cooperative_id`.
+
+---
+
+## Pendientes
+
+### Bugs críticos
+- [ ] BUG-W5-09 — Fix double counting (Wave #5-A + Wave #5-B)
+- [ ] BUG-W5-11 — Verificar fix retire en Vercel
+- [ ] BUG-W5-10 — Fix Actividad Reciente en Vercel
+
+### Bugs medios
+- [ ] BUG-W5-05 — Implementar `/dashboard/cooperative/members`
+- [ ] BUG-W5-07 — Documentar `SUPER_ADMIN_ADDRESSES`
+- [ ] BUG-W5-03 — Cleanup datos IntTest Coop en Supabase
+
+### Base de datos
+- [ ] DB-01 — Agregar FK para `stellar_address`
+- [ ] DB-02 — Agregar constraint UNIQUE en `serial_number`
+- [ ] DB-03 — Documentar tablas de soporte en README
+
+### UX
+- [ ] UX-05 — "Dashboard" → "Panel"
+- [ ] UX-06 — "Testnet" → "Modo de prueba"
+
+### Landing
+- [ ] Actualizar sección "Qué hacemos" con foco empresa ESG
+- [ ] Actualizar sección "Cómo funciona" con foco empresa ESG
+- [ ] Agregar sección de diferenciadores vs mercado actual
+
+### Features próxima wave
+- [ ] Selector dinámico Provincia/Ciudad por País
+- [ ] Scope `/certificates` por rol (issue #012)
+- [ ] Vista empresa ESG — tabla `companies`
+- [ ] Implementar `/dashboard/cooperative/members`
+- [ ] Video de onboarding
