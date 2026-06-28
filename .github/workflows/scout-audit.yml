@@ -41,8 +41,11 @@ jobs:
         run: cargo install cargo-scout-audit
 
       - name: Run Scout
-        run: cargo scout-audit --output-format sarif --output-path scout-results.sarif
-        continue-on-error: true
+        run: |
+          cargo scout-audit --output-format sarif --output-path scout-results.sarif || true
+          if [ ! -f scout-results.sarif ]; then
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[]}' > scout-results.sarif
+          fi
 
       - name: Upload results to GitHub
         uses: github/codeql-action/upload-sarif@v3
