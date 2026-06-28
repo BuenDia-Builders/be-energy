@@ -17,6 +17,7 @@ use stellar_tokens::fungible::{burnable::FungibleBurnable, Base, FungibleToken};
 
 const TTL_THRESHOLD: u32 = 50_000;
 const TTL_EXTEND_TO: u32 = 100_000;
+const MAX_COOPERATIVE_ID_LEN: u32 = 64;
 
 #[contracttype]
 pub enum DataKey {
@@ -47,6 +48,13 @@ impl EnergyToken {
         symbol: String,
         cooperative_id: String,
     ) {
+        // Validate cooperative_id length to prevent unbounded storage growth
+        assert!(
+            cooperative_id.len() <= MAX_COOPERATIVE_ID_LEN,
+            "cooperative_id must be {} characters or less",
+            MAX_COOPERATIVE_ID_LEN
+        );
+
         // Configurar metadatos del token
         Base::set_metadata(e, 7, name, symbol);
 
@@ -326,6 +334,67 @@ mod test {
             client.get_cooperative_id(),
             String::from_str(&env, "coop-buenos-aires")
         );
+    }
+
+    #[test]
+    fn test_cooperative_id_max_length() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let admin = Address::generate(&env);
+        let distribution = Address::generate(&env);
+        let name = String::from_str(&env, "MaxLenCoop");
+        let symbol = String::from_str(&env, "MLC");
+        // Create a cooperative_id exactly at max length (64 chars)
+        let coop_id = String::from_str(&env, "a".repeat(64).as_str());
+
+        let contract_id = env.register(
+            EnergyToken,
+            (&admin, &distribution, &0i128, &name, &symbol, &coop_id),
+        );
+        let client = EnergyTokenClient::new(&env, &contract_id);
+
+        assert_eq!(client.get_cooperative_id().len(), 64);
+    }
+
+    #[test]
+    #[should_panic(expected = "cooperative_id must be 64 characters or less")]
+    fn test_cooperative_id_exceeds_max_length() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let admin = Address::generate(&env);
+        let distribution = Address::generate(&env);
+        let name = String::from_str(&env, "OverLenCoop");
+        let symbol = String::from_str(&env, "OLC");
+        // Create a cooperative_id that exceeds max length (65 chars)
+        let coop_id = String::from_str(&env, "a".repeat(65).as_str());
+
+        env.register(
+            EnergyToken,
+            (&admin, &distribution, &0i128, &name, &symbol, &coop_id),
+        );
+    }
+
+    #[test]
+    fn test_cooperative_id_various_valid_lengths() {
+        let env = Env::default();
+        env.mock_all_auths();
+
+        // Test with various valid lengths
+        for len in [1, 10, 32, 50, 64] {
+            let admin = Address::generate(&env);
+            let distribution = Address::generate(&env);
+            let name = String::from_str(&env, "TestCoop");
+            let symbol = String::from_str(&env, "TC");
+            let coop_id = String::from_str(&env, "a".repeat(len).as_str());
+
+            let contract_id = env.register(
+                EnergyToken,
+                (&admin, &distribution, &0i128, &name, &symbol, &coop_id),
+            );
+            let client = EnergyTokenClient::new(&env, &contract_id);
+
+            assert_eq!(client.get_cooperative_id().len(), len);
+        }
     }
 
     // ========================================================================
