@@ -380,12 +380,12 @@ mod test {
         env.mock_all_auths();
 
         // Test with various valid lengths
-        for len in [1, 10, 32, 50, 64] {
+        for len in [1u32, 10, 32, 50, 64] {
             let admin = Address::generate(&env);
             let distribution = Address::generate(&env);
             let name = String::from_str(&env, "TestCoop");
             let symbol = String::from_str(&env, "TC");
-            let coop_id = String::from_str(&env, "a".repeat(len).as_str());
+            let coop_id = String::from_str(&env, "a".repeat(len as usize).as_str());
 
             let contract_id = env.register(
                 EnergyToken,
