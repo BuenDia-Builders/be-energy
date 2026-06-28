@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { useWallet } from "@/lib/wallet-context"
 import { useI18n } from "@/lib/i18n-context"
 import { useCertificateStats } from "@/hooks/useCertificateStats"
@@ -58,9 +59,12 @@ function CertificateCard({ cert, t, onRetire }: { cert: Certificate; t: (key: st
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-medium text-sm truncate">
+              <Link
+                href={`/certificates/${cert.id}`}
+                className="font-medium text-sm truncate hover:text-energy-green transition-colors"
+              >
                 {cert.cooperatives?.name || cert.cooperative_id}
-              </h3>
+              </Link>
               <StatusBadge status={cert.status} t={t} />
             </div>
             <p className="text-xs text-muted-foreground">
