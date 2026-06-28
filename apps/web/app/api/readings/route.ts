@@ -5,6 +5,10 @@ import { validateBody } from "@/lib/validation/validate"
 import { createReadingSchema, updateReadingSchema } from "@/lib/validation/schemas"
 import { safeDbError, safeCatchError } from "@/lib/errors/safe-error"
 
+function getNetInjectedKwh(kwhGenerated: number, kwhSelfConsumed: number) {
+  return Math.max(0, kwhGenerated - kwhSelfConsumed)
+}
+
 // GET: authenticated — scoped to caller's cooperatives
 export async function GET(req: NextRequest) {
   try {
@@ -71,6 +75,7 @@ export async function POST(req: NextRequest) {
 
     const kwhGen = kwh_generated ?? kwh_injected
     const kwhSelf = kwh_self_consumed ?? kwh_consumed
+    const kwhInjected = kwh_injected ?? getNetInjectedKwh(kwhGen!, kwhSelf ?? 0)
 
     let prosumerId: string | null = null
     let coopId: string | null = cooperative_id ?? null
@@ -154,7 +159,7 @@ export async function POST(req: NextRequest) {
         meter_id: meter_id ?? null,
         cooperative_id: coopId,
         kwh_generated: kwhGen,
-        kwh_injected: kwhGen, // legacy NOT NULL column
+        kwh_injected: kwhInjected,
         kwh_self_consumed: kwhSelf ?? null,
         power_watts: power_watts ?? null,
         interval_minutes: interval_minutes ?? 15,
