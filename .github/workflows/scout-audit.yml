@@ -43,12 +43,12 @@ jobs:
 
       - name: Run Scout
         run: |
+          EMPTY_SARIF='{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[]}'
           if command -v cargo-scout-audit > /dev/null 2>&1; then
-            cargo scout-audit --output-format sarif --output-path scout-results.sarif || true
+            cargo scout-audit --output-format sarif --output-path "$(pwd)/scout-results.sarif" || true
           fi
-          if [ ! -f scout-results.sarif ]; then
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[]}' > scout-results.sarif
-          fi
+          python3 -c "import json,sys; json.load(open('scout-results.sarif'))" 2>/dev/null \
+            || echo "$EMPTY_SARIF" > scout-results.sarif
 
       - name: Upload results to GitHub
         uses: github/codeql-action/upload-sarif@v3
