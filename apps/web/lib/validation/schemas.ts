@@ -76,21 +76,43 @@ export const createReadingSchema = z.object({
   (d) => d.stellar_address || d.meter_id,
   { message: "stellar_address or meter_id required" }
 ).refine(
-  (d) => (d.kwh_generated ?? d.kwh_injected) != null,
-  { message: "kwh_generated required" }
+  (d) => d.kwh_generated != null || d.kwh_injected != null,
+  { message: "kwh_injected or kwh_generated required" }
 ).refine(
   (d) => d.reading_date || d.reading_timestamp,
   { message: "reading_date or reading_timestamp required" }
-)
+).superRefine((d, ctx) => {
+  if (d.kwh_injected == null && d.kwh_generated != null && (d.kwh_self_consumed ?? d.kwh_consumed) == null) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "kwh_self_consumed required when kwh_injected is missing",
+    })
+  }
+})
 
 // Batch meter readings
 const singleMeterReading = z.object({
-  kwh_generated: z.number().positive().lt(1000),
+  kwh_injected: z.number().positive().lt(1000).optional(),
+  kwh_generated: z.number().positive().lt(1000).optional(),
   reading_timestamp: z.string().optional(),
   reading_date: z.string().optional(),
   power_watts: z.number().min(0).optional(),
   interval_minutes: z.number().int().positive().optional(),
   kwh_self_consumed: z.number().min(0).optional(),
+}).superRefine((d, ctx) => {
+  if (d.kwh_injected == null && d.kwh_generated == null) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "kwh_injected or kwh_generated required",
+    })
+  }
+
+  if (d.kwh_injected == null && d.kwh_generated != null && d.kwh_self_consumed == null) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "kwh_self_consumed required when kwh_injected is missing",
+    })
+  }
 })
 
 export const bulkMeterReadingsSchema = z.object({

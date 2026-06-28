@@ -42,7 +42,7 @@ describe("POST /api/meters/readings (bulk)", () => {
   beforeEach(() => vi.clearAllMocks())
 
   it("rechaza sin meter_id → 400", async () => {
-    const res = await POST(makeRequest({ readings: [{ kwh_generated: 1 }] }))
+    const res = await POST(makeRequest({ readings: [{ kwh_injected: 1 }] }))
     expect(res.status).toBe(400)
   })
 
@@ -62,7 +62,7 @@ describe("POST /api/meters/readings (bulk)", () => {
     const res = await POST(
       makeRequest({
         meter_id: METER_ID,
-        readings: [{ kwh_generated: 1, reading_timestamp: "2025-01-01T12:00:00Z" }],
+        readings: [{ kwh_injected: 1, reading_timestamp: "2025-01-01T12:00:00Z" }],
       })
     )
     expect(res.status).toBe(404)
@@ -77,7 +77,7 @@ describe("POST /api/meters/readings (bulk)", () => {
     const res = await POST(
       makeRequest({
         meter_id: METER_ID,
-        readings: [{ kwh_generated: 1, reading_timestamp: "2025-01-01T12:00:00Z" }],
+        readings: [{ kwh_injected: 1, reading_timestamp: "2025-01-01T12:00:00Z" }],
       })
     )
     expect(res.status).toBe(400)
@@ -100,8 +100,8 @@ describe("POST /api/meters/readings (bulk)", () => {
       makeRequest({
         meter_id: METER_ID,
         readings: [
-          { kwh_generated: 1.5, reading_timestamp: "2025-01-01T12:00:00Z" },
-          { kwh_generated: 2.0, reading_timestamp: "2025-01-01T12:15:00Z" },
+          { kwh_injected: 1.5, reading_timestamp: "2025-01-01T12:00:00Z" },
+          { kwh_injected: 2.0, reading_timestamp: "2025-01-01T12:15:00Z" },
         ],
       })
     )
