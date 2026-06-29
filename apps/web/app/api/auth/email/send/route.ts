@@ -19,14 +19,18 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
+    const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: true },
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: `${origin}/auth/callback`,
+      },
     })
 
     if (error) {
       console.error("Supabase OTP error:", error)
-      return NextResponse.json({ error: "Error enviando el código" }, { status: 500 })
+      return NextResponse.json({ error: error.message ?? "Error enviando el código" }, { status: 500 })
     }
 
     return NextResponse.json({ ok: true })

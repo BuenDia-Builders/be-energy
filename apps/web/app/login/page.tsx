@@ -1,8 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowRight, Loader2 } from "lucide-react"
+import { ArrowRight, Loader2, Eye, EyeOff } from "lucide-react"
+import { createClient } from "@supabase/supabase-js"
+
+const supabaseClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 function HexPattern({ id, stroke = "rgba(0,83,122,0.35)" }: { id: string; stroke?: string }) {
   return (
@@ -20,59 +25,28 @@ function HexPattern({ id, stroke = "rgba(0,83,122,0.35)" }: { id: string; stroke
   )
 }
 
-type Step = "email" | "otp" | "loading"
-
 export default function LoginPage() {
-  const router = useRouter()
-  const [step, setStep] = useState<Step>("email")
   const [email, setEmail] = useState("")
-  const [otp, setOtp] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState("")
   const [busy, setBusy] = useState(false)
 
-  async function handleSendOtp(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
-    if (!email || busy) return
+    if (busy) return
     setBusy(true)
     setError("")
     try {
-      const res = await fetch("/api/auth/email/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error ?? "Error enviando el código"); return }
-      setStep("otp")
-    } catch {
-      setError("Error de red. Intentá de nuevo.")
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function handleVerifyOtp(e: React.FormEvent) {
-    e.preventDefault()
-    if (!otp || busy) return
-    setBusy(true)
-    setError("")
-    setStep("loading")
-    try {
-      const res = await fetch("/api/auth/email/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, token: otp }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error ?? "Código incorrecto")
-        setStep("otp")
+      const { data, error: authError } = await supabaseClient.auth.signInWithPassword({ email, password })
+      if (authError || !data.user) {
+        setError("Email o contraseña incorrectos.")
         return
       }
-      router.push("/dashboard")
+      // Exchange Supabase session for our JWT via callback
+      window.location.href = "/auth/callback/password?uid=" + data.user.id + "&email=" + encodeURIComponent(email)
     } catch {
       setError("Error de red. Intentá de nuevo.")
-      setStep("otp")
     } finally {
       setBusy(false)
     }
@@ -91,164 +65,90 @@ export default function LoginPage() {
         background: "#fff",
         maxWidth: 560,
       }}>
-        {/* Logo */}
         <a href="/" style={{ display: "inline-block", marginBottom: 64 }}>
           <img src="/beenergy-assets/BeEnergy-logo-primary.svg" alt="BeEnergy" style={{ height: 28 }} />
         </a>
 
-        {step === "loading" ? (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 16 }}>
-            <Loader2 style={{ width: 32, height: 32, color: "#00537A", animation: "spin 1s linear infinite" }} />
-            <p style={{ fontSize: 15, color: "#64748B" }}>Preparando tu espacio…</p>
-            <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 700, letterSpacing: "-0.03em", color: "#0F172A", marginBottom: 12, lineHeight: 1.1 }}>
+          Ingresá a tu cuenta
+        </h1>
+        <p style={{ fontSize: 15, color: "#64748B", marginBottom: 40, lineHeight: 1.65 }}>
+          Usá tu email y contraseña para acceder.
+        </p>
+
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 14, maxWidth: 400 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>Email</label>
+            <input
+              type="email"
+              placeholder="tu@empresa.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoFocus
+              style={{ height: 44, padding: "0 14px", border: "1px solid #E2E8F0", borderRadius: 8, fontSize: 14, color: "#0F172A", outline: "none", width: "100%", fontFamily: "inherit" }}
+              onFocus={e => (e.target.style.borderColor = "#00537A")}
+              onBlur={e => (e.target.style.borderColor = "#E2E8F0")}
+            />
           </div>
-        ) : (
-          <>
-            <h1 style={{ fontSize: "clamp(2rem, 4vw, 2.75rem)", fontWeight: 700, letterSpacing: "-0.03em", color: "#0F172A", marginBottom: 12, lineHeight: 1.1 }}>
-              {step === "email" ? "Ingresá a tu cuenta" : "Verificá tu email"}
-            </h1>
-            <p style={{ fontSize: 15, color: "#64748B", marginBottom: 48, lineHeight: 1.65 }}>
-              {step === "email"
-                ? "Ingresá tu email y te enviamos un código de 6 dígitos."
-                : `Enviamos un código a ${email}. Revisá tu bandeja de entrada.`
-              }
-            </p>
 
-            {step === "email" ? (
-              <form onSubmit={handleSendOtp} style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400 }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>Email</label>
-                  <input
-                    type="email"
-                    placeholder="tu@empresa.com"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    required
-                    style={{
-                      height: 44,
-                      padding: "0 14px",
-                      border: "1px solid #E2E8F0",
-                      borderRadius: 8,
-                      fontSize: 14,
-                      color: "#0F172A",
-                      outline: "none",
-                      width: "100%",
-                      fontFamily: "inherit",
-                    }}
-                    onFocus={e => (e.target.style.borderColor = "#00537A")}
-                    onBlur={e => (e.target.style.borderColor = "#E2E8F0")}
-                  />
-                </div>
-
-                {error && (
-                  <p style={{ fontSize: 13, color: "#EF4444", marginTop: 4 }}>{error}</p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={busy || !email}
-                  style={{
-                    height: 44,
-                    background: busy || !email ? "#94A3B8" : "#00537A",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 8,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: busy || !email ? "not-allowed" : "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                    transition: "background 150ms",
-                    fontFamily: "inherit",
-                    marginTop: 4,
-                  }}>
-                  {busy ? <Loader2 style={{ width: 16, height: 16, animation: "spin 1s linear infinite" }} /> : null}
-                  Continuar
-                </button>
-
-                <p style={{ fontSize: 12, color: "#94A3B8", marginTop: 8 }}>
-                  Sin wallet. Sin contraseña. Solo tu email.
-                </p>
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyOtp} style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 400 }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <label style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>Código de 6 dígitos</label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="123456"
-                    value={otp}
-                    onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    required
-                    maxLength={6}
-                    autoFocus
-                    style={{
-                      height: 52,
-                      padding: "0 14px",
-                      border: "1px solid #E2E8F0",
-                      borderRadius: 8,
-                      fontSize: 22,
-                      letterSpacing: "0.25em",
-                      color: "#0F172A",
-                      outline: "none",
-                      width: "100%",
-                      fontFamily: "'IBM Plex Mono', monospace",
-                    }}
-                    onFocus={e => (e.target.style.borderColor = "#00537A")}
-                    onBlur={e => (e.target.style.borderColor = "#E2E8F0")}
-                  />
-                </div>
-
-                {error && (
-                  <p style={{ fontSize: 13, color: "#EF4444", marginTop: 4 }}>{error}</p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={busy || otp.length < 6}
-                  style={{
-                    height: 44,
-                    background: busy || otp.length < 6 ? "#94A3B8" : "#00537A",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 8,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: busy || otp.length < 6 ? "not-allowed" : "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                    transition: "background 150ms",
-                    fontFamily: "inherit",
-                  }}>
-                  {busy ? <Loader2 style={{ width: 16, height: 16, animation: "spin 1s linear infinite" }} /> : null}
-                  Ingresar
-                  {!busy && <ArrowRight style={{ width: 14, height: 14 }} />}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => { setStep("email"); setOtp(""); setError("") }}
-                  style={{ background: "none", border: "none", fontSize: 13, color: "#64748B", cursor: "pointer", textAlign: "left", padding: 0, fontFamily: "inherit" }}>
-                  ← Cambiar email
-                </button>
-              </form>
-            )}
-
-            <div style={{ marginTop: 56, paddingTop: 24, borderTop: "1px solid #E2E8F0" }}>
-              <p style={{ fontSize: 12, color: "#94A3B8" }}>
-                ¿Sos cooperativa con wallet Stellar?{" "}
-                <a href="/" style={{ color: "#00537A", textDecoration: "none", fontWeight: 500 }}>
-                  Conectar wallet
-                </a>
-              </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 13, fontWeight: 500, color: "#0F172A" }}>Contraseña</label>
+            <div style={{ position: "relative" }}>
+              <input
+                type={showPass ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                style={{ height: 44, padding: "0 42px 0 14px", border: "1px solid #E2E8F0", borderRadius: 8, fontSize: 14, color: "#0F172A", outline: "none", width: "100%", fontFamily: "inherit" }}
+                onFocus={e => (e.target.style.borderColor = "#00537A")}
+                onBlur={e => (e.target.style.borderColor = "#E2E8F0")}
+              />
+              <button type="button" onClick={() => setShowPass(v => !v)}
+                style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94A3B8", padding: 0 }}>
+                {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
-          </>
-        )}
+          </div>
+
+          {error && <p style={{ fontSize: 13, color: "#EF4444" }}>{error}</p>}
+
+          <button
+            type="submit"
+            disabled={busy || !email || !password}
+            style={{
+              height: 44,
+              background: busy || !email || !password ? "#94A3B8" : "#00537A",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: busy || !email || !password ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              fontFamily: "inherit",
+              marginTop: 4,
+            }}>
+            {busy ? <Loader2 style={{ width: 16, height: 16, animation: "spin 1s linear infinite" }} /> : null}
+            Ingresar
+            {!busy && <ArrowRight style={{ width: 14, height: 14 }} />}
+          </button>
+
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        </form>
+
+        <div style={{ marginTop: 48, paddingTop: 24, borderTop: "1px solid #E2E8F0" }}>
+          <p style={{ fontSize: 12, color: "#94A3B8" }}>
+            ¿Sos cooperativa con wallet Stellar?{" "}
+            <a href="/" style={{ color: "#00537A", textDecoration: "none", fontWeight: 500 }}>
+              Conectar wallet
+            </a>
+          </p>
+        </div>
       </div>
 
       {/* ── Right panel — dark brand ── */}
@@ -265,7 +165,6 @@ export default function LoginPage() {
       }}>
         <HexPattern id="hexlogin" stroke="rgba(0,83,122,0.4)" />
 
-        {/* Certificate card preview */}
         <div style={{
           position: "absolute",
           top: "50%",
@@ -299,7 +198,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Bottom text */}
         <div style={{ position: "relative", zIndex: 1 }}>
           <h2 style={{ fontSize: "clamp(1.4rem, 2.5vw, 1.875rem)", fontWeight: 700, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 12 }}>
             Generación real.<br />Activo verificable.
