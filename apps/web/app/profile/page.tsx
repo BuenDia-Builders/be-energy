@@ -61,16 +61,23 @@ export default function ProfilePage() {
     }
 
     setIsSaving(true)
-    // Simular guardado
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim() }),
+      })
 
-    setUserProfile({
-      name: name.trim(),
-      avatar: avatar,
-    })
+      if (!res.ok) {
+        console.error("[Profile] Save failed:", await res.text())
+        return
+      }
 
-    setIsSaving(false)
-    setIsEditing(false)
+      setUserProfile({ name: name.trim(), avatar })
+      setIsEditing(false)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleDisconnect = () => {
