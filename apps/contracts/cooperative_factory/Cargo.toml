@@ -1,0 +1,18 @@
+[package]
+name = "cooperative_factory"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+soroban-sdk = { workspace = true }
+stellar-access = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }
+energy_token = { path = "../energy_token" }
+energy_distribution = { package = "energy-distribution", path = "../energy_distribution" }
+community_governance = { path = "../community_governance" }

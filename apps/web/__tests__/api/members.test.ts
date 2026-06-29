@@ -37,6 +37,7 @@ vi.mock("@/lib/auth/middleware", () => ({
 }))
 
 import { GET, POST } from "@/app/api/members/route"
+import { requireAuth } from "@/lib/auth/middleware"
 
 function makeGet(params = "") {
   return new NextRequest(`http://localhost/api/members${params}`)
@@ -83,5 +84,64 @@ describe("POST /api/members", () => {
     expect(res.status).toBe(201)
     const json = await res.json()
     expect(json.stellar_address).toBe(ADDR)
+  })
+})
+
+describe("GET /api/members — 403 boundary", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("rechaza cooperative_id fuera del scope del caller → 403", async () => {
+    vi.mocked(requireAuth).mockImplementationOnce(async () => ({
+      sub: ADDR,
+      cooperative_ids: [],
+      admin_cooperative_ids: [],
+      is_super_admin: false,
+      iat: 0,
+      exp: 9_999_999_999,
+    }))
+
+    const res = await GET(makeGet(`?cooperative_id=${COOP_ID}`))
+    expect(res.status).toBe(403)
+    const json = await res.json()
+    expect(json.error).toBe("Access denied")
+  })
+})
+
+describe("POST /api/members — 400 validation vectors", () => {
+  beforeEach(() => vi.clearAllMocks())
+
+  it("rechaza dirección Stellar inválida (no empieza con G) → 400", async () => {
+    const res = await POST(
+      makePost({ stellar_address: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" })
+    )
+    expect(res.status).toBe(400)
+    const json = await res.json()
+    expect(json.error).toMatch(/Validation failed/)
+  })
+
+  it("crea miembro y verifica shape completa del response → 201", async () => {
+    const fakeMember = {
+      id: "uuid-2",
+      stellar_address: ADDR,
+      cooperative_id: COOP_ID,
+      name: "Alice",
+      panel_capacity_kw: 5,
+      role: "prosumer",
+      created_at: new Date().toISOString(),
+    }
+    mockSingle.mockResolvedValueOnce({ data: fakeMember, error: null })
+
+    const res = await POST(
+      makePost({ stellar_address: ADDR, name: "Alice", panel_capacity_kw: 5, cooperative_id: COOP_ID })
+    )
+    expect(res.status).toBe(201)
+    const json = await res.json()
+    expect(json).toMatchObject({
+      id: "uuid-2",
+      stellar_address: ADDR,
+      cooperative_id: COOP_ID,
+      name: "Alice",
+      role: "prosumer",
+    })
   })
 })
