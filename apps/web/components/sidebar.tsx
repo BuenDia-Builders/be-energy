@@ -53,19 +53,16 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border flex-col">
+    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-border">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-solar-yellow rounded-full flex items-center justify-center overflow-hidden">
-            <img src="/beenergy-assets/iso-transparente.png" alt="BeEnergy" className="w-6 h-6 object-contain" />
-          </div>
-          <span className="text-2xl font-bold">BeEnergy</span>
+      <div className="p-6 border-b border-sidebar-border">
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <img src="/beenergy-assets/BeEnergy-logo-white.svg" alt="BeEnergy" className="h-7 w-auto" />
         </Link>
       </div>
 
       {/* Menu */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-3 space-y-0.5">
         {menuItems.map((item) => {
           const Icon = item.icon
           const active = isActive(item.href)
@@ -76,28 +73,28 @@ export function Sidebar() {
               onClick={() => item.enabled && router.push(item.href)}
               disabled={!item.enabled}
               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left",
-                active && "bg-primary/10 text-primary font-semibold",
-                !active && item.enabled && "hover:bg-muted text-foreground",
-                !item.enabled && "opacity-50 cursor-not-allowed text-muted-foreground",
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-left text-sm",
+                active
+                  ? "bg-sidebar-accent text-sidebar-primary font-semibold"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+                !item.enabled && "opacity-40 cursor-not-allowed",
               )}
             >
-              <Icon className="w-5 h-5" />
+              <Icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />
               <span>{item.label}</span>
             </button>
           )
         })}
       </nav>
 
-      <div className="p-4 border-t border-border">
-        <Button
+      <div className="p-3 border-t border-sidebar-border">
+        <button
           onClick={handleDisconnect}
-          variant="outline"
-          className="w-full justify-start gap-3 bg-transparent text-sm h-10"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-colors"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-4 h-4 shrink-0" strokeWidth={1.5} />
           {t("sidebar.disconnect")}
-        </Button>
+        </button>
       </div>
     </aside>
   )

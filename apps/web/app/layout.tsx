@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter } from "next/font/google"
+import { IBM_Plex_Sans } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { WalletProvider } from "@/lib/wallet-context"
@@ -9,10 +9,10 @@ import { ThemeProvider } from "@/lib/theme-context"
 import { I18nProvider } from "@/lib/i18n-context"
 import { Toaster } from "@/components/ui/sonner"
 
-const inter = Inter({
+const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
+  variable: "--font-ibm-plex-sans",
 })
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#FEC800",
+  themeColor: "#FFD500",
   width: "device-width",
   initialScale: 1,
 }
@@ -37,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${ibmPlexSans.variable} font-sans antialiased`}>
         <ThemeProvider>
           <I18nProvider>
             <WalletProvider>

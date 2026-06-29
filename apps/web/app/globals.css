@@ -3,101 +3,134 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* BeEnergy style from Downloads - Light Theme */
+/* ─── BE ENERGY BRAND DESIGN SYSTEM ────────────────────────────────────────
+   Source: https://buendia-builders.github.io/be-energy/brand/
+   Palette: Deep Navy · Ocean Teal · Midnight · Solar Gold · Cloud · Slate
+   Typography: IBM Plex Sans — 400 / 500 / 600 / 700
+   Grid: 8px base unit · 12 cols · 24px gutter · 1200px max-width
+   Motion: 150ms micro · 250ms standard · 400ms complex
+   Easing: cubic-bezier(0.2, 0, 0, 1)
+   Icons: Lucide · stroke 1.5px
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ─── LIGHT MODE ─────────────────────────────────────────────────────────── */
 :root {
-  --background: #F7F8FA;
-  --foreground: #18191A;
+  /* Surfaces */
+  --background: #F8FAFC;         /* Cloud */
+  --foreground: #0F172A;         /* Deep Navy */
   --card: #FFFFFF;
-  --card-foreground: #18191A;
+  --card-foreground: #0F172A;
   --popover: #FFFFFF;
-  --popover-foreground: #18191A;
-  --primary: #18191A;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F0F1F3;
-  --secondary-foreground: #18191A;
-  --muted: #F0F1F3;
-  --muted-foreground: #6B7280;
-  --accent: #F0F1F3;
-  --accent-foreground: #18191A;
+  --popover-foreground: #0F172A;
+
+  /* Interactive */
+  --primary: #0F172A;            /* Deep Navy */
+  --primary-foreground: #F8FAFC;
+  --secondary: #EFF6FF;
+  --secondary-foreground: #0F172A;
+  --muted: #F0F4F8;
+  --muted-foreground: #64748B;   /* Brand Slate */
+  --accent: #FFD500;             /* Solar Gold */
+  --accent-foreground: #0F172A;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: #18191A;
+
+  /* Borders & inputs */
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #FFD500;               /* Solar Gold focus ring */
+
+  /* Semantic */
   --success: #3DDC97;
   --success-foreground: #FFFFFF;
   --warning: #FA9A4B;
-  --warning-foreground: #18191A;
-  --radius: 1rem;
-  /* BeEnergy Brand Colors */
-  --solar-yellow: #FEC800;
+  --warning-foreground: #0F172A;
+
+  /* Border radius — enterprise scale (8px base) */
+  --radius: 0.5rem;
+
+  /* ─── Brand palette ───────────────────────────────────────────────────── */
+  --solar-gold: #FFD500;
+  --solar-yellow: #FFD500;       /* alias for backward compat */
   --solar-orange: #FA9A4B;
+  --ocean-teal: #00537A;
+  --deep-navy: #0F172A;
+  --midnight: #013C58;
+  --cloud: #F8FAFC;
+  --brand-slate: #64748B;
   --web3-purple: #C590FC;
   --energy-green: #3DDC97;
-  --chart-1: #FEC800;
+
+  /* Charts */
+  --chart-1: #FFD500;
   --chart-2: #FA9A4B;
-  --chart-3: #C590FC;
+  --chart-3: #00537A;
   --chart-4: #3DDC97;
-  --chart-5: #6366F1;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #18191A;
-  --sidebar-primary: #18191A;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F0F1F3;
-  --sidebar-accent-foreground: #18191A;
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: #18191A;
+  --chart-5: #C590FC;
+
+  /* Sidebar — always dark navy, both modes */
+  --sidebar: #0F172A;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #FFD500;
+  --sidebar-primary-foreground: #0F172A;
+  --sidebar-accent: #013C58;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: #1e3a4f;
+  --sidebar-ring: #FFD500;
 }
 
-/* BeEnergy style from Downloads - Dark Theme */
+/* ─── DARK MODE ──────────────────────────────────────────────────────────── */
 .dark {
-  --background: #18191A;
-  --foreground: #F7F8FA;
-  --card: #1F2123;
-  --card-foreground: #F7F8FA;
-  --popover: #1F2123;
-  --popover-foreground: #F7F8FA;
-  --primary: #FFFFFF;
-  --primary-foreground: #18191A;
-  --secondary: #2A2C2E;
-  --secondary-foreground: #F7F8FA;
-  --muted: #2A2C2E;
-  --muted-foreground: #9CA3AF;
-  --accent: #2A2C2E;
-  --accent-foreground: #F7F8FA;
+  /* Surfaces */
+  --background: #0F172A;         /* Deep Navy */
+  --foreground: #F8FAFC;         /* Cloud */
+  --card: #013C58;               /* Midnight */
+  --card-foreground: #F8FAFC;
+  --popover: #013C58;
+  --popover-foreground: #F8FAFC;
+
+  /* Interactive */
+  --primary: #FFD500;            /* Solar Gold — primary CTA in dark */
+  --primary-foreground: #0F172A;
+  --secondary: #00537A;          /* Ocean Teal */
+  --secondary-foreground: #F8FAFC;
+  --muted: #1a2d42;
+  --muted-foreground: #64748B;   /* Brand Slate */
+  --accent: #FFD500;
+  --accent-foreground: #0F172A;
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  --border: #2A2C2E;
-  --input: #2A2C2E;
-  --ring: #FFFFFF;
+
+  /* Borders & inputs */
+  --border: #1e3a4f;
+  --input: #1e3a4f;
+  --ring: #FFD500;
+
+  /* Semantic */
   --success: #3DDC97;
   --success-foreground: #FFFFFF;
   --warning: #FA9A4B;
-  --warning-foreground: #18191A;
-  --solar-yellow: #FEC800;
-  --solar-orange: #FA9A4B;
-  --web3-purple: #C590FC;
-  --energy-green: #3DDC97;
-  --chart-1: #FEC800;
-  --chart-2: #FA9A4B;
-  --chart-3: #C590FC;
-  --chart-4: #3DDC97;
-  --chart-5: #6366F1;
-  --sidebar: #1F2123;
-  --sidebar-foreground: #F7F8FA;
-  --sidebar-primary: #FFFFFF;
-  --sidebar-primary-foreground: #18191A;
-  --sidebar-accent: #2A2C2E;
-  --sidebar-accent-foreground: #F7F8FA;
-  --sidebar-border: #2A2C2E;
-  --sidebar-ring: #FFFFFF;
+  --warning-foreground: #0F172A;
+
+  /* Sidebar — deeper navy for depth contrast */
+  --sidebar: #080f1a;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #FFD500;
+  --sidebar-primary-foreground: #0F172A;
+  --sidebar-accent: #0F172A;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: #1e3a4f;
+  --sidebar-ring: #FFD500;
 }
 
-/* Font configuration - estilo Downloads (Inter, Geist Mono) */
+/* ─── TAILWIND / SHADCN THEME MAPPING ────────────────────────────────────── */
 @theme inline {
-  --font-sans: "Inter", "Geist", system-ui, sans-serif;
-  --font-body: "Inter", "Geist", system-ui, sans-serif;
-  --font-mono: "Geist Mono", monospace;
+  /* Fonts — reference the Next.js injected variable */
+  --font-sans: var(--font-ibm-plex-sans), system-ui, sans-serif;
+  --font-body: var(--font-ibm-plex-sans), system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Geist Mono", monospace;
+
+  /* Colors → Tailwind utilities */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -121,15 +154,21 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Radius scale — 8px enterprise base */
+  --radius-sm: calc(var(--radius) - 4px);   /* 4px */
+  --radius-md: calc(var(--radius) - 2px);   /* 6px */
+  --radius-lg: var(--radius);               /* 8px */
+  --radius-xl: calc(var(--radius) + 4px);   /* 12px */
+
+  /* Charts */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -138,62 +177,120 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  /* BeEnergy brand colors (Downloads style) - Tailwind utilities */
+
+  /* Brand palette utilities */
+  --color-solar-gold: var(--solar-gold);
   --color-solar-yellow: var(--solar-yellow);
   --color-solar-orange: var(--solar-orange);
+  --color-ocean-teal: var(--ocean-teal);
+  --color-deep-navy: var(--deep-navy);
+  --color-midnight: var(--midnight);
+  --color-cloud: var(--cloud);
+  --color-brand-slate: var(--brand-slate);
   --color-web3-purple: var(--web3-purple);
   --color-energy-green: var(--energy-green);
+
+  /* Motion tokens */
+  --duration-micro: 150ms;
+  --duration-standard: 250ms;
+  --duration-complex: 400ms;
+  --ease-brand: cubic-bezier(0.2, 0, 0, 1);
 }
 
+/* ─── BASE LAYER ─────────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
   }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-sans);
     font-weight: 600;
+    letter-spacing: -0.02em;
   }
 }
 
-/* BeEnergy custom utilities */
+/* ─── TYPOGRAPHY SCALE (brand guide) ─────────────────────────────────────── */
+.text-display {
+  font-size: 3rem;        /* 48px */
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.text-heading {
+  font-size: 2rem;        /* 32px */
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.text-subheading {
+  font-size: 1.5rem;      /* 24px */
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.text-label-caps {
+  font-size: 0.625rem;    /* 10px */
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ─── BRAND UTILITIES ─────────────────────────────────────────────────────── */
+
+/* Hexagonal pattern — exact tessellation from Brand Identity System
+   3-hexagon grid (88×76) replicating the paneles solares / isotipo geometry */
+.hex-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='76'%3E%3Cpolygon points='22,2 42,13 42,37 22,48 2,37 2,13' fill='none' stroke='white' stroke-opacity='0.055' stroke-width='1'/%3E%3Cpolygon points='66,2 86,13 86,37 66,48 46,37 46,13' fill='none' stroke='white' stroke-opacity='0.055' stroke-width='1'/%3E%3Cpolygon points='44,40 64,51 64,75 44,86 24,75 24,51' fill='none' stroke='white' stroke-opacity='0.055' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 88px 76px;
+}
+
+/* Glass card — teal-tinted in dark */
 .glass-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .dark .glass-card {
-  background: rgba(31, 33, 35, 0.4);
-  border: 1px solid rgba(197, 144, 252, 0.2);
+  background: rgba(1, 60, 88, 0.5);
+  border: 1px solid rgba(0, 83, 122, 0.35);
 }
 
-/* Gradientes con paleta Downloads */
+/* Gradients */
 .gradient-primary {
-  background: linear-gradient(135deg, #FEC800 0%, #FA9A4B 100%);
+  background: linear-gradient(135deg, #FFD500 0%, #FA9A4B 100%);
 }
 
 .gradient-eco {
   background: linear-gradient(135deg, #3DDC97 0%, #10b981 100%);
 }
 
+.gradient-navy {
+  background: linear-gradient(135deg, #0F172A 0%, #013C58 100%);
+}
+
+.gradient-teal {
+  background: linear-gradient(135deg, #013C58 0%, #00537A 100%);
+}
+
+/* ─── ANIMATIONS ──────────────────────────────────────────────────────────── */
+
 @keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-20px); }
 }
 
 .animate-float {
@@ -201,15 +298,25 @@
 }
 
 @keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(254, 200, 0, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(254, 200, 0, 0.6);
-  }
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 213, 0, 0.25); }
+  50%       { box-shadow: 0 0 40px rgba(255, 213, 0, 0.5); }
 }
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes entrance {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-entrance {
+  animation: entrance 250ms cubic-bezier(0.2, 0, 0, 1) forwards;
 }
