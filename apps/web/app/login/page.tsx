@@ -4,10 +4,16 @@ import { useState } from "react"
 import { ArrowRight, Loader2, Eye, EyeOff } from "lucide-react"
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseClient = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+let _supabaseClient: ReturnType<typeof createClient> | null = null
+function getSupabaseClient() {
+  if (!_supabaseClient) {
+    _supabaseClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+  }
+  return _supabaseClient
+}
 
 function HexPattern({ id, stroke = "rgba(0,83,122,0.35)" }: { id: string; stroke?: string }) {
   return (
@@ -38,7 +44,7 @@ export default function LoginPage() {
     setBusy(true)
     setError("")
     try {
-      const { data, error: authError } = await supabaseClient.auth.signInWithPassword({ email, password })
+      const { data, error: authError } = await getSupabaseClient().auth.signInWithPassword({ email, password })
       if (authError || !data.user) {
         setError("Email o contraseña incorrectos.")
         return
