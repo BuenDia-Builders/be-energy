@@ -13,6 +13,8 @@
     "@be-energy/stellar": "workspace:*",
     "@creit.tech/stellar-wallets-kit": "^1.9.5",
     "@defindex/sdk": "^0.1.1",
+    "@dfns/sdk": "^0.8.21",
+    "@dfns/sdk-keysigner": "^0.8.21",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",

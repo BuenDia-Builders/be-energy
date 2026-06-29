@@ -220,11 +220,11 @@ export default function LandingPage() {
           </nav>
           <div className="flex items-center gap-3 ml-4">
             <LanguageSelector />
-            <button onClick={handleConnectClick}
+            <a href="/login"
               className="hidden md:inline-flex items-center h-8 px-4 rounded-md text-xs font-semibold"
-              style={{ background: "#00537A", color: "#fff" }}>
+              style={{ background: "#00537A", color: "#fff", textDecoration: "none" }}>
               Acceder a la plataforma
-            </button>
+            </a>
           </div>
         </div>
       </header>
@@ -257,12 +257,12 @@ export default function LandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row items-start gap-3">
-                <button onClick={handleConnectClick}
+                <a href="/login"
                   className="inline-flex items-center gap-2 rounded-md font-semibold text-white"
-                  style={{ background: "#00537A", height: 44, padding: "0 24px", fontSize: 14 }}>
+                  style={{ background: "#00537A", height: 44, padding: "0 24px", fontSize: 14, textDecoration: "none" }}>
                   Acceder a la plataforma
                   <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
-                </button>
+                </a>
                 <a href="#como-funciona"
                   className="inline-flex items-center rounded-md border"
                   style={{ height: 44, padding: "0 24px", fontSize: 14, color: "#0F172A", borderColor: "#E2E8F0", textDecoration: "none" }}>
@@ -466,12 +466,12 @@ export default function LandingPage() {
               Una infraestructura preparada para cooperativas que documentan producción
               y empresas que necesitan evidencia real de su impacto ambiental.
             </p>
-            <button onClick={handleConnectClick}
+            <a href="/login"
               className="inline-flex items-center gap-2 rounded-md font-semibold"
-              style={{ background: "#FFD500", color: "#0F172A", height: 44, padding: "0 24px", fontSize: 14 }}>
+              style={{ background: "#FFD500", color: "#0F172A", height: 44, padding: "0 24px", fontSize: 14, textDecoration: "none" }}>
               Solicitar una demo
               <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
-            </button>
+            </a>
           </div>
         </div>
       </section>
