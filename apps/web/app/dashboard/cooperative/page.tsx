@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n-context"
 import { useCooperativeDetail } from "@/hooks/useCooperativeDetail"
 import { useCooperativeReadings } from "@/hooks/useCooperativeReadings"
+import { useCooperatives } from "@/hooks/useCooperatives"
 import { Sidebar } from "@/components/sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { StatusBadge } from "@/components/shared/status-badge"
@@ -36,6 +37,11 @@ export default function CooperativeAdminPage() {
 
   const adminCoopIds = session?.admin_cooperative_ids ?? []
   const [selectedCoopId, setSelectedCoopId] = useState<string | null>(null)
+  const { cooperatives } = useCooperatives()
+  const coopNameMap = useMemo(
+    () => Object.fromEntries(cooperatives.map((c) => [c.id, c.name])),
+    [cooperatives]
+  )
   const [period, setPeriod] = useState<Period>("month")
   const [showCreateCert, setShowCreateCert] = useState(false)
   const [showAddMeter, setShowAddMeter] = useState(false)
@@ -159,7 +165,7 @@ export default function CooperativeAdminPage() {
                   className="appearance-none bg-card border border-border rounded-lg px-4 py-2 pr-8 text-sm"
                 >
                   {adminCoopIds.map((id) => (
-                    <option key={id} value={id}>{id}</option>
+                    <option key={id} value={id}>{coopNameMap[id] ?? id}</option>
                   ))}
                 </select>
                 <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-muted-foreground" />

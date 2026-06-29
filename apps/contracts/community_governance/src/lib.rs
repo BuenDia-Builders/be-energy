@@ -16,6 +16,7 @@ const PERSISTENT_TTL_EXTEND_TO: u32 = 200_000;
 #[repr(u32)]
 pub enum GovernanceError {
     AlreadyInitialized = 1,
+    CounterOverflow = 2,
 }
 
 #[contracttype]
@@ -54,10 +55,10 @@ impl CommunityGovernance {
         Ok(())
     }
 
-    pub fn create_proposal(env: Env, proposer: Address, title: String) -> u32 {
+    pub fn create_proposal(env: Env, proposer: Address, title: String) -> Result<u32, GovernanceError> {
         proposer.require_auth();
         let count: u32 = env.storage().instance().get(&DataKey::ProposalCount).unwrap_or(0);
-        let id = count + 1;
+        let id = count.checked_add(1).ok_or(GovernanceError::CounterOverflow)?;
 
         let proposal = Proposal {
             id,
@@ -74,7 +75,7 @@ impl CommunityGovernance {
         env.storage().instance().set(&DataKey::ProposalCount, &id);
         env.storage().instance().extend_ttl(INSTANCE_TTL_THRESHOLD, INSTANCE_TTL_EXTEND_TO);
 
-        id
+        Ok(id)
     }
 
     pub fn get_proposal_count(env: Env) -> u32 {
@@ -153,7 +154,7 @@ mod test {
         let (client, _) = setup(&env);
         let proposer = Address::generate(&env);
 
-        let id = client.create_proposal(&proposer, &String::from_str(&env, "Install solar panels"));
+        let id = client.try_create_proposal(&proposer, &String::from_str(&env, "Install solar panels")).unwrap().unwrap();
 
         assert_eq!(id, 1);
         assert_eq!(client.get_proposal_count(), 1);
@@ -166,9 +167,9 @@ mod test {
         let (client, _) = setup(&env);
         let proposer = Address::generate(&env);
 
-        let id1 = client.create_proposal(&proposer, &String::from_str(&env, "Proposal A"));
-        let id2 = client.create_proposal(&proposer, &String::from_str(&env, "Proposal B"));
-        let id3 = client.create_proposal(&proposer, &String::from_str(&env, "Proposal C"));
+        let id1 = client.try_create_proposal(&proposer, &String::from_str(&env, "Proposal A")).unwrap().unwrap();
+        let id2 = client.try_create_proposal(&proposer, &String::from_str(&env, "Proposal B")).unwrap().unwrap();
+        let id3 = client.try_create_proposal(&proposer, &String::from_str(&env, "Proposal C")).unwrap().unwrap();
 
         assert_eq!(id1, 1);
         assert_eq!(id2, 2);
@@ -184,7 +185,7 @@ mod test {
         let proposer = Address::generate(&env);
         let title = String::from_str(&env, "Buy new inverters");
 
-        let id = client.create_proposal(&proposer, &title);
+        let id = client.try_create_proposal(&proposer, &title).unwrap().unwrap();
 
         let proposal = client.get_proposal(&id).unwrap();
         assert_eq!(proposal.id, id);
@@ -202,8 +203,8 @@ mod test {
         let proposer1 = Address::generate(&env);
         let proposer2 = Address::generate(&env);
 
-        let id1 = client.create_proposal(&proposer1, &String::from_str(&env, "From user 1"));
-        let id2 = client.create_proposal(&proposer2, &String::from_str(&env, "From user 2"));
+        let id1 = client.try_create_proposal(&proposer1, &String::from_str(&env, "From user 1")).unwrap().unwrap();
+        let id2 = client.try_create_proposal(&proposer2, &String::from_str(&env, "From user 2")).unwrap().unwrap();
 
         let p1 = client.get_proposal(&id1).unwrap();
         let p2 = client.get_proposal(&id2).unwrap();
@@ -241,7 +242,7 @@ mod test {
         let proposer = Address::generate(&env);
 
         for expected_id in 1u32..=10 {
-            let id = client.create_proposal(&proposer, &String::from_str(&env, "test"));
+            let id = client.try_create_proposal(&proposer, &String::from_str(&env, "test")).unwrap().unwrap();
             assert_eq!(id, expected_id);
         }
         assert_eq!(client.get_proposal_count(), 10);
@@ -255,5 +256,24 @@ mod test {
 
         // IDs start at 1, so ID 0 should never exist
         assert_eq!(client.get_proposal(&0), None);
+    }
+
+    #[test]
+    fn test_counter_overflow_returns_error() {
+        let env = Env::default();
+        env.mock_all_auths();
+        let contract_id = env.register(CommunityGovernance, ());
+        let client = CommunityGovernanceClient::new(&env, &contract_id);
+        let admin = Address::generate(&env);
+        let _ = client.try_initialize(&admin);
+        let proposer = Address::generate(&env);
+
+        // Manually set the counter to u32::MAX
+        env.as_contract(&contract_id, || {
+            env.storage().instance().set(&DataKey::ProposalCount, &u32::MAX);
+        });
+
+        let result = client.try_create_proposal(&proposer, &String::from_str(&env, "overflow"));
+        assert!(result.is_err());
     }
 }

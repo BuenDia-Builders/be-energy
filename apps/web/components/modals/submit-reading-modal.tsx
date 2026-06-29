@@ -25,7 +25,7 @@ interface SubmitReadingModalProps {
 export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onSuccess }: SubmitReadingModalProps) {
   const { t } = useI18n()
   const [meterId, setMeterId] = useState("")
-  const [kwhGenerated, setKwhGenerated] = useState("")
+  const [kwhInjected, setKwhInjected] = useState("")
   const [readingDate, setReadingDate] = useState(new Date().toISOString().split("T")[0])
   const [powerWatts, setPowerWatts] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -34,7 +34,7 @@ export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onS
 
   const resetForm = () => {
     setMeterId("")
-    setKwhGenerated("")
+    setKwhInjected("")
     setReadingDate(new Date().toISOString().split("T")[0])
     setPowerWatts("")
     setError(null)
@@ -49,7 +49,7 @@ export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onS
   }
 
   const handleSubmit = async () => {
-    if (!meterId || !kwhGenerated || !readingDate) return
+    if (!meterId || !kwhInjected || !readingDate) return
 
       const today = new Date().toISOString().split("T")[0]
       if (readingDate > today) {
@@ -66,7 +66,7 @@ export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onS
         body: JSON.stringify({
           meter_id: meterId,
           cooperative_id: cooperativeId,
-          kwh_generated: Number(kwhGenerated),
+          kwh_injected: Number(kwhInjected),
           reading_date: readingDate,
           power_watts: powerWatts ? Number(powerWatts) : undefined,
         }),
@@ -115,7 +115,7 @@ export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onS
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">{t("submitReading.kwh")}</label>
-            <Input type="number" min="0" step="0.01" max="999" value={kwhGenerated} onChange={(e) => setKwhGenerated(e.target.value)} />
+            <Input type="number" min="0" step="0.01" max="999" value={kwhInjected} onChange={(e) => setKwhInjected(e.target.value)} />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">{t("submitReading.date")}</label>
@@ -149,7 +149,7 @@ export function SubmitReadingModal({ isOpen, onClose, cooperativeId, meters, onS
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isSubmitting || !meterId || !kwhGenerated || !readingDate}
+            disabled={isSubmitting || !meterId || !kwhInjected || !readingDate}
             className="flex-1 gradient-primary text-white font-semibold"
           >
             {isSubmitting ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : t("submitReading.submit")}

@@ -25,6 +25,26 @@ async function markFailed(readingId: string, reason: string) {
   return NextResponse.json({ error: reason }, { status: 500 })
 }
 
+function getMintableKwh(reading: {
+  kwh_injected?: number | null
+  kwh_generated?: number | null
+  kwh_self_consumed?: number | null
+}) {
+  if (reading.kwh_injected != null) {
+    return reading.kwh_injected
+  }
+
+  if (reading.kwh_generated == null) {
+    throw new Error("Reading is missing both kwh_injected and kwh_generated")
+  }
+
+  if (reading.kwh_self_consumed == null) {
+    throw new Error("Reading requires kwh_self_consumed when kwh_injected is unavailable")
+  }
+
+  return Math.max(0, reading.kwh_generated - reading.kwh_self_consumed)
+}
+
 async function mintOnChain(
   toAddress: string,
   amountKwh: number,
@@ -194,7 +214,14 @@ export async function POST(req: NextRequest) {
     }
 
     const prosumerAddress = reading.prosumers.stellar_address
-    const kwhAmount = reading.kwh_generated ?? reading.kwh_injected
+    let kwhAmount: number
+
+    try {
+      kwhAmount = getMintableKwh(reading)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Invalid reading energy data"
+      return NextResponse.json({ error: message }, { status: 400 })
+    }
 
     const txHash = await mintOnChain(prosumerAddress, kwhAmount, minterSecret, contractAddress)
 
