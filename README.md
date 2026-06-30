@@ -117,6 +117,53 @@ cargo test
 
 ---
 
+## Authentication Flow
+
+BeEnergy soporta dos formas de acceso:
+
+### Email + Contraseña
+Para usuarios que no tienen wallet Stellar (administradores, compradores, equipo interno):
+
+```
+Usuario ingresa email + contraseña en /login
+        |
+Supabase verifica credenciales
+        |
+/auth/callback/password crea o recupera la wallet Stellar del usuario
+(vía DFNS si está configurado, o keypair de servidor en testnet)
+        |
+Se emite JWT propio y se setea cookie de sesión
+        |
+Redirige a /dashboard
+```
+
+> **Demo:** `demo@beenergy.coop` / `Demo2026!`
+
+**Nota:** Funciona con cualquier email, no requiere Gmail ni OAuth. Google login no está configurado actualmente.
+
+### Wallet Stellar
+Para cooperativas y usuarios que ya tienen Freighter, xBull u otra wallet compatible:
+
+```
+Usuario hace clic en "Conectar wallet Stellar" en /login
+        |
+Stellar Wallets Kit abre selector de wallets
+        |
+Usuario selecciona wallet y aprueba conexión
+        |
+Backend emite un challenge (string aleatorio)
+        |
+Usuario firma el challenge con su wallet (sin gas, sin transacción)
+        |
+/api/auth/verify valida la firma con la clave pública Stellar
+        |
+Se emite JWT y redirige a /dashboard
+```
+
+Ambos métodos emiten el mismo JWT interno y dan acceso a las mismas páginas. La wallet Stellar permite además firmar transacciones on-chain.
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
