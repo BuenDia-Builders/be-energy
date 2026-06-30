@@ -28,17 +28,17 @@ const SOURCE_TOOLTIP: Record<string, string> = {
 
 export default function ConsumptionPage() {
   const { isConnected, address } = useWallet()
-  const { session } = useAuth()
+  const { session, isLoading: authLoading } = useAuth()
   const { t } = useI18n()
   const router = useRouter()
   const { readings, loading, error, refetch } = useMyReadings(address)
   const [verifying, setVerifying] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
-    if (!isConnected) {
+    if (!authLoading && !isConnected && !session) {
       router.push("/")
     }
-  }, [isConnected, router])
+  }, [isConnected, session, authLoading, router])
 
   const verifyReading = useCallback(async (readingId: string) => {
     setVerifying(prev => ({ ...prev, [readingId]: true }))
@@ -57,7 +57,7 @@ export default function ConsumptionPage() {
   const isAdminOf = (cooperativeId: string) =>
     session?.admin_cooperative_ids.includes(cooperativeId) ?? false
 
-  if (!isConnected) {
+  if (!isConnected && !session) {
     return null
   }
 

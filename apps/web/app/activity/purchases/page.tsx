@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useWallet } from "@/lib/wallet-context"
+import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n-context"
 import { useHorizonPayments } from "@/hooks/useHorizonPayments"
 import { Sidebar } from "@/components/sidebar"
@@ -23,17 +24,18 @@ function formatTime(isoString: string): string {
 
 export default function PurchasesPage() {
   const { isConnected, address } = useWallet()
+  const { session, isLoading: authLoading } = useAuth()
   const { t } = useI18n()
   const router = useRouter()
   const { payments, isLoading, error, refetch } = useHorizonPayments(address)
 
   useEffect(() => {
-    if (!isConnected) {
+    if (!authLoading && !isConnected && !session) {
       router.push("/")
     }
-  }, [isConnected, router])
+  }, [isConnected, session, authLoading, router])
 
-  if (!isConnected) {
+  if (!isConnected && !session) {
     return null
   }
 

@@ -146,7 +146,7 @@ function CertificateCard({ cert, t, onRetire }: { cert: Certificate; t: (key: st
 
 export default function CertificatesPage() {
   const { isConnected } = useWallet();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, session, isLoading: authLoading } = useAuth();
   const { t } = useI18n();
   const router = useRouter();
 
@@ -186,12 +186,12 @@ export default function CertificatesPage() {
   };
 
   useEffect(() => {
-    if (!isConnected) {
+    if (!authLoading && !isConnected && !session) {
       router.push("/");
     }
-  }, [isConnected, router]);
+  }, [isConnected, session, authLoading, router]);
 
-  if (!isConnected) return null;
+  if (!isConnected && !session) return null;
 
   // Extract unique technologies from certificates for filter
   const technologies = [...new Set(certificates.map((c) => c.technology))];

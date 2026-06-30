@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useWallet } from "@/lib/wallet-context"
+import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -18,6 +19,7 @@ import { User, Camera, Save, ArrowLeft } from "lucide-react"
 export default function ProfilePage() {
   const router = useRouter()
   const { isConnected, address, userProfile, setUserProfile, disconnectWallet } = useWallet()
+  const { session, isLoading: authLoading } = useAuth()
   const { t } = useI18n()
 
   const [name, setName] = useState("")
@@ -26,10 +28,10 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
-    if (!isConnected) {
+    if (!authLoading && !isConnected && !session) {
       router.push("/")
     }
-  }, [isConnected, router])
+  }, [isConnected, session, authLoading, router])
 
   useEffect(() => {
     if (userProfile) {
@@ -87,7 +89,7 @@ export default function ProfilePage() {
 
   const identiconColor = address ? generateIdenticon(address) : "#8DE8F2"
 
-  if (!isConnected || !userProfile) {
+  if (!isConnected && !session) {
     return null
   }
 

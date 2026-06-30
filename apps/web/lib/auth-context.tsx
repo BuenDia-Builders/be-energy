@@ -53,13 +53,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkSession()
   }, [])
 
-  // Auto-logout if address changes to a different wallet
+  // Auto-logout if wallet is connected but address doesn't match session
   useEffect(() => {
-    if (!isLoading && session && address && address !== session.stellar_address) {
+    if (!isLoading && session && isConnected && address && address !== session.stellar_address) {
       setSession(null)
       fetch("/api/auth/logout", { method: "POST" }).catch(() => {})
     }
-  }, [address, session, isLoading])
+  }, [address, isConnected, session, isLoading])
 
   const login = useCallback(async (walletAddress?: string) => {
     const addr = walletAddress || address
