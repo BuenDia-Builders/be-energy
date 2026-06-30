@@ -14,10 +14,7 @@
 |-------|-------|
 | 🥇 **Featured Project** | [Stellar Buenos Aires Hackathon 2025](https://dorahacks.io/buidl/36793) |
 | 🏅 **Innovation Certificate** | Stellar Jury — Buenos Aires 2025 |
-| 🌍 **Selected Project** | [ClimateLaunchpad 2026](https://climatelaunchpad.org/) — powered by Climate-KIC & Chrysalis LEAP |
-
-> *"Your idea has been selected to participate in ClimateLaunchpad 2026 — the world's largest green startup competition."*
-> — Chrysalis LEAP × Climate-KIC, Cyprus Chapter
+| 🌍 **Selected** | [ClimateLaunchpad 2026](https://climatelaunchpad.org/) — world's largest green startup competition, powered by Climate-KIC & Chrysalis LEAP |
 
 ---
 
@@ -213,6 +210,24 @@ cargo test
 | 1 — Internal registry | Token = verifiable production record | ✅ Live on Testnet |
 | 2 — Verified certification | IoT oracles + independent meter validation | 🔄 Next |
 | 3 — Recognized standard | Integration with I-REC, Energy Web, TIGR | 🔮 Future |
+
+---
+
+## Planned Stellar Ecosystem Integrations
+
+BeEnergy is designed to plug into Stellar's growing DeFi and payments ecosystem. Planned integrations from the [SCF Integration Track](https://stellar.gitbook.io/scf-handbook/scf-awards/build-award/integration-track/integration-list):
+
+| Integration | What it unlocks for BeEnergy |
+|-------------|------------------------------|
+| **[DeFindex](https://defindex.io)** | Cooperatives earn yield on certificate proceeds held in vaults — idle capital works while certificates wait for buyers |
+| **[Blend Protocol](https://blend.capital)** | Use certificates as collateral for credit lines — cooperatives access working capital without selling |
+| **[Soroswap](https://soroswap.finance)** | AMM liquidity pool for certificate tokens — enables price discovery and secondary market for renewable attributes |
+| **USDC (Circle)** | Stablecoin payments for certificate purchases — buyers pay in USDC, cooperatives receive USDC, no FX volatility |
+| **[Aquarius](https://aquarius.network)** | Liquidity incentives for BETOKEN/USDC pairs — bootstraps the certificate secondary market |
+| **Fiat On/Off Ramp (SEP-24)** | Cooperatives receive payments in local fiat (ARS, COP, BRL) via Stellar anchors — no crypto knowledge required |
+| **[Stellar Turrets / smart oracles](https://tss.stellar.org)** | Automated certificate minting triggered by verified IoT meter readings — removes manual intervention |
+
+These integrations are load-bearing features on the product roadmap, not checkbox items. DeFindex is the most immediate — partial integration already exists in the codebase.
 
 ---
 
