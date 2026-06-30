@@ -1,8 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowRight, Loader2, Eye, EyeOff } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ArrowRight, Loader2, Eye, EyeOff, Wallet } from "lucide-react"
 import { createClient } from "@supabase/supabase-js"
+import { useWallet } from "@/lib/wallet-context"
+import { useAuth } from "@/lib/auth-context"
+import { WalletConfirmationModal } from "@/components/wallet-confirmation-modal"
 
 let _supabaseClient: ReturnType<typeof createClient> | null = null
 function getSupabaseClient() {
@@ -32,11 +36,15 @@ function HexPattern({ id, stroke = "rgba(0,83,122,0.35)" }: { id: string; stroke
 }
 
 export default function LoginPage() {
+  const router = useRouter()
+  const { connectWallet } = useWallet()
+  const { login } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPass, setShowPass] = useState(false)
   const [error, setError] = useState("")
   const [busy, setBusy] = useState(false)
+  const [showWalletModal, setShowWalletModal] = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -157,14 +165,37 @@ export default function LoginPage() {
         </div>
 
         <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid #E2E8F0" }}>
-          <p style={{ fontSize: 12, color: "#94A3B8" }}>
-            ¿Sos cooperativa con wallet Stellar?{" "}
-            <a href="/" style={{ color: "#00537A", textDecoration: "none", fontWeight: 500 }}>
-              Conectar wallet
-            </a>
+          <p style={{ fontSize: 12, color: "#94A3B8", marginBottom: 10 }}>
+            ¿Sos cooperativa con wallet Stellar?
           </p>
+          <button
+            type="button"
+            onClick={() => setShowWalletModal(true)}
+            style={{
+              display: "flex", alignItems: "center", gap: 8,
+              height: 40, padding: "0 16px",
+              border: "1px solid #E2E8F0", borderRadius: 8,
+              background: "#fff", cursor: "pointer",
+              fontSize: 13, fontWeight: 500, color: "#0F172A",
+              fontFamily: "inherit",
+            }}
+          >
+            <Wallet size={15} color="#00537A" />
+            Conectar wallet Stellar
+          </button>
         </div>
       </div>
+
+      <WalletConfirmationModal
+        isOpen={showWalletModal}
+        onClose={() => setShowWalletModal(false)}
+        onConfirm={async () => {
+          const walletAddress = await connectWallet()
+          if (!walletAddress) throw new Error("Conexión cancelada")
+          await login(walletAddress)
+          router.push("/dashboard")
+        }}
+      />
 
       {/* ── Right panel — dark brand ── */}
       <div style={{
