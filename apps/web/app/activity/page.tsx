@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useWallet } from "@/lib/wallet-context"
+import { useAuth } from "@/lib/auth-context"
 import { useI18n } from "@/lib/i18n-context"
 import { useHorizonPayments } from "@/hooks/useHorizonPayments"
 import { useEvents } from "@/hooks/useEvents"
@@ -37,6 +38,7 @@ type ActivityItem = {
 
 export default function ActivityPage() {
   const { isConnected, address } = useWallet()
+  const { session, isLoading: authLoading } = useAuth()
   const { t } = useI18n()
   const router = useRouter()
   const { payments, isLoading: paymentsLoading, error: paymentsError, refetch: refetchPayments } = useHorizonPayments(address)
@@ -91,12 +93,12 @@ export default function ActivityPage() {
   }, [payments, events, address])
 
   useEffect(() => {
-    if (!isConnected) {
+    if (!authLoading && !isConnected && !session) {
       router.push("/")
     }
-  }, [isConnected, router])
+  }, [isConnected, session, authLoading, router])
 
-  if (!isConnected) {
+  if (!isConnected && !session) {
     return null
   }
 

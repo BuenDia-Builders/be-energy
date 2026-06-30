@@ -39,7 +39,7 @@ function formatRelativeTime(dateString: string, t: (key: string) => string): str
 
 export default function DashboardPage() {
   const { isConnected, isPending: walletPending, userProfile, address } = useWallet()
-  const { session, refreshSession } = useAuth()
+  const { session, refreshSession, isLoading: authLoading } = useAuth()
 
   const { t } = useI18n()
   const router = useRouter()
@@ -121,13 +121,14 @@ export default function DashboardPage() {
   }, [isConnected, address])
 
   const [copied, setCopied] = useState(false)
+  const [avatarError, setAvatarError] = useState(false)
   const shortAddress = address ? `${address.slice(0, 4)}...${address.slice(-4)}` : null
 
   useEffect(() => {
-    if (!walletPending && !isConnected) {
+    if (!walletPending && !authLoading && !isConnected && !session) {
       router.push("/")
     }
-  }, [walletPending, isConnected, router])
+  }, [walletPending, authLoading, isConnected, session, router])
 
   const handleCopyAddress = async () => {
     if (!address) return
@@ -147,7 +148,7 @@ export default function DashboardPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  if (!isConnected) {
+  if (!isConnected && !session) {
     return null
   }
 
@@ -175,11 +176,12 @@ export default function DashboardPage() {
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-solar-yellow/20 flex items-center justify-center overflow-hidden border-2 border-solar-yellow/30">
-                    {userProfile.avatar ? (
+                    {userProfile.avatar && !avatarError ? (
                       <img
-                        src={userProfile.avatar || "/placeholder.svg"}
+                        src={userProfile.avatar}
                         alt={userProfile.name}
                         className="w-full h-full object-cover"
+                        onError={() => setAvatarError(true)}
                       />
                     ) : (
                       <User className="w-8 h-8 text-solar-yellow" />
