@@ -147,7 +147,16 @@ export default function LoginPage() {
           <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
         </form>
 
-        <div style={{ marginTop: 48, paddingTop: 24, borderTop: "1px solid #E2E8F0" }}>
+        <div style={{ marginTop: 16, padding: "12px 14px", background: "#F1F5F9", borderRadius: 8, border: "1px solid #E2E8F0" }}>
+          <p style={{ fontSize: 12, color: "#64748B", margin: 0, lineHeight: 1.6 }}>
+            <span style={{ fontWeight: 600, color: "#0F172A" }}>Demo:</span>{" "}
+            demo@beenergy.coop{" "}
+            <span style={{ color: "#CBD5E1" }}>·</span>{" "}
+            Demo2026!
+          </p>
+        </div>
+
+        <div style={{ marginTop: 24, paddingTop: 24, borderTop: "1px solid #E2E8F0" }}>
           <p style={{ fontSize: 12, color: "#94A3B8" }}>
             ¿Sos cooperativa con wallet Stellar?{" "}
             <a href="/" style={{ color: "#00537A", textDecoration: "none", fontWeight: 500 }}>
