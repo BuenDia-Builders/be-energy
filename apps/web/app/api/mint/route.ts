@@ -49,7 +49,8 @@ async function mintOnChain(
   toAddress: string,
   amountKwh: number,
   minterSecret: string,
-  contractAddress: string
+  contractAddress: string,
+  onSubmitted?: (hash: string) => Promise<void>
 ) {
   const amountInStroops = BigInt(Math.round(amountKwh * 1e7))
   const server = new StellarSdk.rpc.Server(STELLAR_CONFIG.RPC_URL)
@@ -83,12 +84,22 @@ async function mintOnChain(
     throw new Error("Transaction failed to submit")
   }
 
-  const MAX_POLL_ATTEMPTS = 30
+  // Record the submitted hash before waiting for confirmation — if the poll below
+  // times out on a slow testnet, the caller can still tell this hash was sent
+  // instead of silently allowing a duplicate mint on retry.
+  if (onSubmitted) {
+    await onSubmitted(sendResult.hash)
+  }
+
+  const MAX_POLL_ATTEMPTS = 90
   let attempts = 0
   let txResponse = await server.getTransaction(sendResult.hash)
   while (txResponse.status === "NOT_FOUND") {
     if (++attempts >= MAX_POLL_ATTEMPTS) {
-      throw new Error("Transaction confirmation timeout — check Stellar network status")
+      throw new Error(
+        `Transaction confirmation timeout — tx ${sendResult.hash} was submitted but not yet confirmed. ` +
+          `Check https://stellar.expert/explorer/testnet/tx/${sendResult.hash} before retrying.`
+      )
     }
     await new Promise((resolve) => setTimeout(resolve, 1000))
     txResponse = await server.getTransaction(sendResult.hash)
@@ -152,6 +163,18 @@ export async function POST(req: NextRequest) {
         )
       }
 
+      if (cert.mint_tx_hash) {
+        return NextResponse.json(
+          {
+            error:
+              `This certificate already has a submitted mint transaction (${cert.mint_tx_hash}) ` +
+              `that never confirmed as available. Check it on Stellar Expert before minting again — ` +
+              `retrying may mint duplicate tokens.`,
+          },
+          { status: 409 }
+        )
+      }
+
       const coop = cert.cooperatives as {
         admin_stellar_address: string
         token_contract_address: string | null
@@ -160,7 +183,18 @@ export async function POST(req: NextRequest) {
       const mintTo = StellarSdk.Keypair.fromSecret(minterSecret).publicKey()
       const tokenContract = coop.token_contract_address || contractAddress
 
-      const txHash = await mintOnChain(mintTo, cert.total_kwh, minterSecret, tokenContract)
+      const txHash = await mintOnChain(
+        mintTo,
+        cert.total_kwh,
+        minterSecret,
+        tokenContract,
+        async (submittedHash) => {
+          await supabase
+            .from("certificates")
+            .update({ mint_tx_hash: submittedHash })
+            .eq("id", certificateId)
+        }
+      )
 
       await supabase
         .from("certificates")
