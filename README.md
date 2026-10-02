@@ -1,174 +1,69 @@
-# BeEnergy
+BeEnergy
+Current status (pivot)
+Product lane is undecided; no customer, market, or commercialization model is selected here.
+The current code is a cooperative-management web app with Supabase-backed records and Soroban contracts configured for Stellar Testnet.
+Meter submissions are stored as application readings; no independent physical-meter verification is implemented.
+energy_token is a fungible SEP-41 token; it is not an I-REC or I-REC(E).
+Do not present a BeEnergy token or database record as a recognized certificate, REC, or environmental-attribute instrument.
+Token minting does not by itself prove generation, prevent double counting, or establish ESG/offset-reporting eligibility.
+“Certificate,” “mint,” and “retirement” are existing code/database labels, not evidence of external certification, sale, or registry retirement.
+No payment, buyer entitlement, or marketplace is established by the current implementation.
+Keep certification, trading, and product claims out of the README unless separately evidenced and approved.
+Cooperative management dashboard and Stellar Testnet contract experiments; product direction remains open.
 
-> **Renewable energy cooperatives deserve proof. BeEnergy puts it on-chain.**
+Network
+License
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-be--energy--six.vercel.app-00537A?style=for-the-badge)](https://be-energy-six.vercel.app)
-[![Network](https://img.shields.io/badge/Stellar-Testnet-FFD500?style=for-the-badge&logo=stellar)](https://stellar.org)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge)](LICENSE)
+🏆 Recognition
+Award	Event
+🥇 Featured Project	Stellar Buenos Aires Hackathon 2025
+🏅 Innovation Certificate (event award, not an energy certificate)	Stellar Jury — Buenos Aires 2025
+🌍 Selected	ClimateLaunchpad 2026 — world's largest green startup competition, powered by Climate-KIC & Chrysalis LEAP
+Current code
+Earlier drafts framed BeEnergy around renewable-energy proof and access to buyers. That was a product hypothesis, not a current product definition.
 
----
+The repository currently contains:
 
-## 🏆 Recognition
+A cooperative-management dashboard with Supabase-backed records and API routes.
+Manual and bulk meter-reading endpoints; submitted readings are application data, not independent verification of physical generation.
+A synthetic smart-meter mock, not a physical meter adapter.
+Certificate-named application screens and database/API workflows, plus Soroban mint/burn operations. These labels do not establish a recognized certificate or an external sale.
+Rust Soroban contracts for a fungible SEP-41 token, member allocation, proposal creation, and cooperative deployment.
+There is no implemented marketplace, payment flow, or registry-backed certificate issuance/retirement. See the docs-vs-code audit for evidence and unresolved discrepancies.
 
-| Award | Event |
-|-------|-------|
-| 🥇 **Featured Project** | [Stellar Buenos Aires Hackathon 2025](https://dorahacks.io/buidl/36793) |
-| 🏅 **Innovation Certificate** | Stellar Jury — Buenos Aires 2025 |
-| 🌍 **Selected** | [ClimateLaunchpad 2026](https://climatelaunchpad.org/) — world's largest green startup competition, powered by Climate-KIC & Chrysalis LEAP |
+Authentication
+The code includes Supabase email/password authentication and a Stellar-wallet challenge/signature path. Both depend on deployment configuration; the checked-in .env.example is not a complete local-auth setup. A demo credential shown by the UI does not guarantee that a hosted account is provisioned or available.
 
----
+Stellar contract code
+Contract	Current code surface	Boundary
+energy_token	Fungible SEP-41 mint, burn, and transfer operations	No certificate ID, meter proof, or registry identifier is encoded in each token.
+energy_distribution	Member allocation and cumulative generation operations	Does not independently verify physical readings.
+community_governance	Initialization and proposal creation	No voting or proposal execution method is present.
+cooperative_factory	Cooperative contract deployment	No current web-app caller is listed in the feature inventory.
+The app reads contract addresses from environment variables in apps/web/lib/contracts-config.ts. Addresses in older README/docs conflict with apps/web/.env.example; reconcile with maintainers before using a deployment. No listed address is treated here as canonical.
 
-## The Problem
+External links
+The project has previously linked to a hosted deployment and a demo video. Availability and demo-account configuration are external to this source snapshot and are not validated here.
 
-Renewable energy cooperatives generate clean energy every day — but **they can't prove it**.
+Tech Stack
+Layer	Technology
+Blockchain	Stellar Testnet (Soroban smart contracts)
+Smart Contracts	Rust + OpenZeppelin Stellar v0.5.1
+Token Standard	SEP-41 fungible token
+Frontend	Next.js 16 + React 19 + TypeScript
+Styling	Tailwind CSS v4 + shadcn/ui
+Auth	Supabase + JWT + Stellar wallet signature
+Wallet Support	Freighter, xBull, Lobstr (via Stellar Wallets Kit)
+Backend	Next.js API Routes + Supabase
+Deployment	Vercel
+Monorepo	Turborepo + pnpm
+Monorepo Structure
+text
 
-- No standardized way to record generation
-- No verifiable certificate that travels with the energy claim
-- No access to ESG markets, carbon offsetting programs, or institutional buyers
-- Manual, paper-based processes that nobody trusts
-
-Meanwhile, companies and funds with ESG commitments are actively looking for verifiable renewable energy claims — and can't find them.
-
-**The gap between cooperatives and buyers is a trust gap. BeEnergy closes it.**
-
----
-
-## The Solution
-
-BeEnergy is a cooperative management dashboard + on-chain certification infrastructure on **Stellar**.
-
-Every kWh registered by a cooperative becomes a **proto-certificate**: a verifiable, on-chain claim tied to a real meter, a real cooperative, and a real time period.
-
-```
-Smart meter sends reading → POST /api/meters/readings
-         ↓
-BeEnergy validates & mints token on Stellar (1 token = 1 kWh)
-         ↓
-Certificate is assigned to cooperative members
-         ↓
-External buyer (company / ESG fund) purchases certificate
-         ↓
-Buyer retires certificate on-chain (verifiable burn)
-         ↓
-Permanent, auditable proof on Stellar blockchain
-```
-
-No intermediaries. No PDFs. No trust required — the chain is the proof.
-
----
-
-## How It Works — Full Platform Flow
-
-### For Cooperatives
-
-```
-1. Register cooperative on BeEnergy
-2. Add smart meters (physical IoT devices)
-3. Meters send generation readings automatically via API
-4. BeEnergy mints proto-certificates on Stellar
-5. Manage members, view generation stats, track certificates
-```
-
-### For Buyers
-
-```
-1. Browse available certificates by cooperative / technology / period
-2. Purchase certificates (linked to specific on-chain tokens)
-3. Retire certificate → recorded permanently on Stellar
-4. Receive auditable proof of renewable energy support
-```
-
-### Authentication
-
-BeEnergy supports two access methods — no setup required to try:
-
-**Email + Password** (for admins, buyers, internal team)
-```
-/login → Supabase auth → JWT issued → Stellar wallet auto-assigned → /dashboard
-```
-> Try it: `demo@beenergy.coop` / `Demo2026!`
-
-**Stellar Wallet** (for cooperatives with Freighter / xBull / Lobstr)
-```
-Connect wallet → Server issues challenge → User signs with private key
-→ Signature verified on-chain → JWT issued → /dashboard
-```
-
-Both methods issue the same JWT and give full platform access. Wallet users can additionally sign on-chain transactions.
-
----
-
-## Stellar Integration — What's Actually On-Chain
-
-This is not a wrapper. Stellar is load-bearing infrastructure:
-
-| What | How |
-|------|-----|
-| **Certificate issuance** | Mint SEP-41 tokens directly on Stellar Testnet |
-| **Certificate retirement** | On-chain burn, permanently auditable |
-| **Member allocation** | `energy_distribution` contract splits tokens by participation % |
-| **Governance** | `community_governance` contract for cooperative proposals |
-| **Wallet auth** | Challenge-response signature verification (no gas, no tx) |
-| **Token standard** | SEP-41 (fungible) with OpenZeppelin Stellar Pausable + Upgradeable |
-
-### Deployed Contracts — Stellar Testnet
-
-| Contract | Address | Purpose |
-|----------|---------|---------|
-| `energy_token` | [`CCYOVOFD...MRPBA6`](https://stellar.expert/explorer/testnet/contract/CCYOVOFDJ5BVBSI6HADLWETTUF3BU423MEAWBSBWV2X5UVNKSJMRPBA6) | SEP-41 token — 1 token = 1 kWh certified |
-| `energy_distribution` | [`CBTDPLFN...NX2UDZ`](https://stellar.expert/explorer/testnet/contract/CBTDPLFNFGWVOD4HXDKW4EH5L3D2YGOY5CWTFCJM5TEWFL4VQTNX2UDZ) | Distributes certificates to members |
-| `community_governance` | [`CCH2EXXN...BJD6YI`](https://stellar.expert/explorer/testnet/contract/CCH2EXXNSDW2BAKBIPFAG6CCZS6LV4VJFUP2CZZCW5LEY4JOAXBJD6YI) | Cooperative on-chain governance |
-
-Built with **OpenZeppelin Stellar Contracts v0.5.1** + **Soroban SDK 23.1.0** — 65 tests passing.
-
----
-
-## Customer Discovery
-
-We validated the problem directly with:
-
-- **Energy cooperatives** in Argentina — confirmed the pain of not being able to sell renewable attributes
-- **ESG compliance teams** — confirmed demand for verifiable, auditable certificates
-- **Climate program coordinators** — confirmed interest in blockchain-based proof over PDFs
-
-Key insight: the bottleneck isn't production — cooperatives generate plenty. The bottleneck is **verifiable proof**. BeEnergy solves exactly that.
-
----
-
-## Live Demo
-
-**Platform:** https://be-energy-six.vercel.app
-**Network:** Stellar Testnet
-**Demo login:** `demo@beenergy.coop` / `Demo2026!`
-
-**[Watch Demo Video →](https://www.youtube.com/watch?v=c5avxNUI18Y)**
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Blockchain | Stellar Testnet (Soroban smart contracts) |
-| Smart Contracts | Rust + OpenZeppelin Stellar v0.5.1 |
-| Token Standard | SEP-41 fungible token |
-| Frontend | Next.js 16 + React 19 + TypeScript |
-| Styling | Tailwind CSS v4 + shadcn/ui |
-| Auth | Supabase + JWT + Stellar wallet signature |
-| Wallet Support | Freighter, xBull, Lobstr (via Stellar Wallets Kit) |
-| Backend | Next.js API Routes + Supabase |
-| Deployment | Vercel |
-| Monorepo | Turborepo + pnpm |
-
----
-
-## Monorepo Structure
-
-```
 be-energy/
 ├── apps/
 │   ├── contracts/           # Soroban smart contracts (Rust)
-│   │   ├── energy_token/         # SEP-41 certificate token
+│   │   ├── energy_token/         # Fungible SEP-41 token
 │   │   ├── energy_distribution/  # Member allocation logic
 │   │   └── community_governance/ # DAO-style proposals
 │   └── web/                 # Next.js dashboard
@@ -179,75 +74,31 @@ be-energy/
 │   └── stellar/             # Shared wallet & config utilities
 └── tooling/
     └── issues/              # GitHub issue templates
-```
+Quick Start
+Bash
 
----
-
-## Quick Start
-
-```bash
-git clone https://github.com/BuenDia-Builders/be-energy.git
+git clone https://github.com/stpatrickghost/be-energy.git
 cd be-energy
 pnpm install
 pnpm dev
-```
+Frontend: http://localhost:3000
 
-Frontend: `http://localhost:3000`
+For authentication and API use, configure apps/web/.env.local with deployment-specific Supabase URL/anon/service-role values and a JWT_SECRET. Mint/burn routes also require the appropriate testnet contract address and MINTER_SECRET_KEY. Do not commit secrets. apps/web/.env.example contains public Stellar settings only and is incomplete for auth/database/minting.
 
-**Build & test contracts:**
-```bash
+Build & test contracts:
+
+Bash
+
 cd apps/contracts
 stellar contract build
 cargo test
-```
+Roadmap status
+No product roadmap is committed while the product lane is undecided. Older roadmap and ecosystem-integration ideas in docs/ are proposals/history, not delivered capabilities or approved commitments. See the audit table.
 
----
+Contributing
+Confirm the active branch flow with maintainers before opening a PR. This checkout's origin exposes main only, while .github/workflows/branch-policy.yml requires PRs to main to come from develop; the older git checkout develop instructions are not runnable from this published branch list.
 
-## Roadmap
+License
+Apache-2.0 — view the license text
 
-| Level | What | Status |
-|-------|------|--------|
-| 1 — Internal registry | Token = verifiable production record | ✅ Live on Testnet |
-| 2 — Verified certification | IoT oracles + independent meter validation | 🔄 Next |
-| 3 — Recognized standard | Integration with I-REC, Energy Web, TIGR | 🔮 Future |
-
----
-
-## Planned Stellar Ecosystem Integrations
-
-BeEnergy is designed to plug into Stellar's growing DeFi and payments ecosystem. Planned integrations from the [SCF Integration Track](https://stellar.gitbook.io/scf-handbook/scf-awards/build-award/integration-track/integration-list):
-
-| Integration | What it unlocks for BeEnergy |
-|-------------|------------------------------|
-| **[DeFindex](https://defindex.io)** | Cooperatives earn yield on certificate proceeds held in vaults — idle capital works while certificates wait for buyers |
-| **[Blend Protocol](https://blend.capital)** | Use certificates as collateral for credit lines — cooperatives access working capital without selling |
-| **[Soroswap](https://soroswap.finance)** | AMM liquidity pool for certificate tokens — enables price discovery and secondary market for renewable attributes |
-| **USDC (Circle)** | Stablecoin payments for certificate purchases — buyers pay in USDC, cooperatives receive USDC, no FX volatility |
-| **[Aquarius](https://aquarius.network)** | Liquidity incentives for BETOKEN/USDC pairs — bootstraps the certificate secondary market |
-| **Fiat On/Off Ramp (SEP-24)** | Cooperatives receive payments in local fiat (ARS, COP, BRL) via Stellar anchors — no crypto knowledge required |
-| **[Stellar Turrets / smart oracles](https://tss.stellar.org)** | Automated certificate minting triggered by verified IoT meter readings — removes manual intervention |
-
-These integrations are load-bearing features on the product roadmap, not checkbox items. DeFindex is the most immediate — partial integration already exists in the codebase.
-
----
-
-## Contributing
-
-PRs welcome. Branch to `develop`, keep commits focused.
-
-```bash
-git checkout develop
-git checkout -b feat/your-feature
-pnpm install && pnpm dev
-# Open PR to develop
-```
-
----
-
-## License
-
-Apache-2.0 — See [LICENSE](LICENSE)
-
----
-
-**Built on Stellar · BuenDia Builders 2026**
+Built on Stellar · BuenDia Builders 2026
