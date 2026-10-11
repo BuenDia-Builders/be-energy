@@ -38,7 +38,7 @@ Argentina usa **Net Billing** (Balance Neto de Facturación):
 
 Proveedor de Servicios de Activos Virtuales. Aplica si custodiás activos de terceros, facilitás trading, o emitís tokens comerciables.
 
-**BeEnergy Fase 1-3:** No aplica. El token es un proto-certificado operativo de la cooperativa, no un activo especulativo.
+**BeEnergy Fase 1-3:** No aplica. El token es un crédito de generación operativo de la cooperativa, no un activo especulativo.
 
 **Fase 4 (inter-cooperativa):** Requiere consulta legal previa.
 
@@ -86,7 +86,7 @@ Primer sistema de autoconsumo virtual comunitario en Argentina.
 ### Flujo lectura → validación → mint (NO mint automático)
 
 Basado en el patrón forward→certificate de B2E2 (EnBW, Alemania), simplificado:
-- HOW-IT-WORKS dice: "la cooperativa valida y se emite el proto-certificado"
+- HOW-IT-WORKS dice: "la cooperativa valida y se emite el crédito de generación"
 - Sin validación de la cooperativa, no hay certificado
 - 3 estados: reading → mint → burn (no 5 como B2E2)
 
@@ -103,7 +103,7 @@ Basado en el patrón forward→certificate de B2E2 (EnBW, Alemania), simplificad
 
 | Proyecto | País | Blockchain | Modelo | Qué tomamos |
 |----------|------|-----------|--------|-------------|
-| B2E2 (EnBW) | Alemania | Ethereum PoA | ERC-1155, forwards/certificates, Balance Authority | Patrón lectura→validación→proto-certificado |
+| B2E2 (EnBW) | Alemania | Ethereum PoA | ERC-1155, forwards/certificates, Balance Authority | Patrón lectura→validación→crédito de generación |
 | Power Ledger | Australia | Solana | Dual token (POWR + Sparkz) | Nada (overkill) |
 | NRGCoin | Bélgica | Ethereum | 1 token = 1 kWh fijo | Concepto de paridad física invariable |
 | Energy Web | Global | EW Chain | Certificados con metadata | Nada directo |

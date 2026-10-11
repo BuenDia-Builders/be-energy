@@ -88,7 +88,7 @@ npx tsx scripts/simulate-purchase.ts
 | 2 | Registrar cooperativa + 3 prosumers (María, Juan, Ana) | Admin cooperativa |
 | 3 | Instalar 3 medidores inteligentes (5 kW, 3.5 kW, 4.2 kW) | Admin cooperativa |
 | 4 | 28 días de lecturas (curva solar, ~4700 lecturas, ~2100 kWh) | Medidores (automático) |
-| 5 | Crear proto-certificado con el total del mes | Admin cooperativa |
+| 5 | Crear crédito de generación con el total del mes | Admin cooperativa |
 | 6 | **Mint on-chain** — tokenizar el certificado en Stellar | Plataforma (minter) |
 | 7 | **Compra/Retiro** — GreenCorp SA retira el certificado (burn) | Empresa compradora |
 
@@ -200,6 +200,6 @@ Requiere `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` en `apps/web/.
 | `prosumers` | Miembros (legacy: prosumers, migrado con cooperative_id y role) |
 | `meters` | Medidores/dispositivos por cooperativa |
 | `readings` | Lecturas de generación (individual y bulk) |
-| `certificates` | Proto-certificados de generación renovable |
-| `retirements` | Retiros de certificados por compradores externos |
+| `certificates` | Créditos de generación renovable (tabla hoy modelada como "certificates"; ver `docs/audit/features.md`) |
+| `retirements` | Retiros de certificados — flujo a reinterpretar, ya no hay comprador externo (Pivot #2) |
 | `mint_log` | Log de transacciones on-chain (mint) |
