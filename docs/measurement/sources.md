@@ -47,7 +47,7 @@ Un medidor bidireccional fuera de servicio, descalibrado o no habilitado hace qu
 
 ## Jerarquía para BeEnergy
 
-A efectos de la emisión de proto-certificados, la jerarquía de fuentes es:
+A efectos de la emisión de créditos de generación, la jerarquía de fuentes es:
 
 1. **Medidor bidireccional habilitado** → fuente preferida cuando está disponible y telemetrizado.
 2. **SCADA con medición en punto de frontera** → aceptable como fuente provisional si el medidor no está disponible.
