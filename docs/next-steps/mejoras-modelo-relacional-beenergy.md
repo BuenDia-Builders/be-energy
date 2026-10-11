@@ -108,7 +108,9 @@ ADD CONSTRAINT mint_log_requires_reading_or_cert
 
 ## 🟢 Mejoras — para soportar el flujo del comprador ESG
 
-### 8. Falta tabla `companies` para compradores externos
+> **Nota (Pivot #2, octubre 2026):** el modelo "comprador ESG externo" de este punto 8 fue descartado — ver `memory/product-research.md`. Los puntos críticos y de performance de arriba (1-7) siguen siendo válidos independientemente del pivot.
+
+### 8. Falta tabla `companies` para compradores externos — descartado por Pivot #2, no implementar
 El flujo del comprador ESG (el cliente que paga) no tiene tabla propia. Hoy `retirements.buyer_name` y `buyer_address` son texto libre — no hay trazabilidad real de quién compró qué.
 
 Para el modelo B2B que queremos, necesitamos poder ver el historial de compras por empresa.
@@ -182,7 +184,7 @@ ALTER TABLE mint_log
 ADD CONSTRAINT mint_log_requires_reading_or_cert 
   CHECK (reading_id IS NOT NULL OR certificate_id IS NOT NULL);
 
--- 7. Tabla companies
+-- 7. Tabla companies — DESCARTADO por Pivot #2 (octubre 2026), no ejecutar este bloque
 CREATE TABLE IF NOT EXISTS companies (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
