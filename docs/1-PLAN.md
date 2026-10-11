@@ -2,14 +2,16 @@
 
 ## ¿Qué es?
 
-Infraestructura de certificación de energía renovable on-chain y dashboard de gestión para cooperativas eléctricas argentinas. Tokeniza la producción de energía renovable como proto-certificados verificables en Stellar, vendibles a compradores externos.
+> **Pivot #2 (octubre 2026):** se descartó el modelo de "proto-certificado vendido a un comprador externo (ESG)" y cualquier marketplace. Ver `memory/product-research.md` para el detalle completo.
+
+Software de gestión de créditos de generación compartida para cooperativas eléctricas argentinas, con registro on-chain (Stellar) como capa de trazabilidad interna — no como producto vendible a terceros. Una cooperativa registra su generación, y el sistema asigna los créditos entre sus miembros/consumidores asociados según su % de participación. Referencia de modelo: Exa Energia (Brasil) — ver `docs/research/exa-energia.md`.
 
 ## ¿Cómo gana plata BeEnergy?
 
-Dos fuentes de ingresos:
+Dos fuentes de ingresos, ninguna depende de vender certificados a un tercero externo:
 
 1. **Suscripción SaaS** — por el dashboard de gestión cooperativa
-2. **Comisión sobre venta de certificados** — X% (ej: 5-10%) sobre cada proto-certificado vendido a compradores externos. Pagado por la cooperativa o incluido en el precio de venta.
+2. **Fee de gestión a la cooperativa/generador** — por el servicio de asignación de créditos, facturación y liquidación (modelo Exa: fee al generador, no al consumidor final)
 
 | Plan | Precio orientativo | Incluye |
 |------|-------------------|---------|
@@ -21,7 +23,7 @@ Dos fuentes de ingresos:
 
 ## Fase 1 — 1 cooperativa piloto
 
-**Objetivo:** Una cooperativa real gestiona su generación con BeEnergy en Testnet. Proto-certificados emitidos y verificables on-chain.
+**Objetivo:** Una cooperativa real gestiona su generación con BeEnergy en Testnet. Créditos de generación registrados y asignados a miembros on-chain.
 
 **Contratos Soroban:**
 - `energy_token` — SEP-41 parametrizable (nombre, símbolo, cooperative_id). 1 token = 1 kWh. Pausable + Upgradeable
@@ -50,8 +52,8 @@ El medidor inteligente envía lecturas automáticamente vía API (`POST /api/met
 **Flujo:**
 ```
 Medidor inteligente registra kWh → Envía datos vía API → Se valida →
-Se mintea proto-certificado on-chain → Comprador externo lo adquiere →
-Se retira el certificado (burn) → Evita doble conteo
+Se mintea el crédito de generación on-chain → Se asigna proporcionalmente
+a los miembros según su % de participación → Se refleja en su facturación/liquidación
 ```
 
 ---

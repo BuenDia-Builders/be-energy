@@ -13,7 +13,7 @@ En Argentina, **IRAM** es el único organismo autorizado para emitir certificado
 
 El **medidor bidireccional instalado por el Distribuidor** es el único instrumento de medición comercial bajo Ley 27.424 [Res. 314/2018, Anexo]. Las lecturas del inversor / SCADA son datos operativos y no tienen efecto comercial en la liquidación del balance neto.
 
-Cualquier afirmación en sentido contrario — incluyendo las que hoy aparecen en `docs/2-HOW-IT-WORKS.md` y `docs/3-DATA-FLOW.md` — debe tratarse como deuda conceptual a corregir.
+Cualquier afirmación en sentido contrario debe tratarse como deuda conceptual a corregir. **Actualización (Pivot #2, octubre 2026):** `docs/2-HOW-IT-WORKS.md` y `docs/3-DATA-FLOW.md` ya se corrigieron — el vocabulario de "proto-certificado vendible" y "comprador externo" fue reemplazado por "crédito de generación" asignado internamente a los miembros. Sigue siendo cierto que ese crédito **no es** un I-REC ni un certificado ESG — ver §6.
 
 ---
 
@@ -225,6 +225,6 @@ Un Usuario-Generador bajo Ley 27.424 **no obtiene I-REC automáticamente**. Debe
 
 ## 6. Nota final para revisores
 
-Este documento reemplaza conceptualmente el vocabulario de "proto-certificado", "comprador externo" y "token = atributo ambiental" usado en `docs/2-HOW-IT-WORKS.md`. Bajo el marco argentino, un token de BeEnergy es una unidad de contabilidad interna de la plataforma. El atributo ambiental transferible en Argentina se emite a través de IRAM y se registra en Evident.
+Este documento reemplaza conceptualmente el vocabulario de "proto-certificado", "comprador externo" y "token = atributo ambiental" ya corregido en `docs/2-HOW-IT-WORKS.md` (Pivot #2). Bajo el marco argentino, un token de BeEnergy es una unidad de contabilidad interna de la plataforma — un **crédito de generación asignado a un miembro**, no un certificado ambiental. El atributo ambiental transferible en Argentina se emite a través de IRAM y se registra en Evident.
 
-Si un feature futuro necesita hacer una declaración ambiental, debe ir por IRAM — no por el contrato `energy_token`.
+Si un feature futuro necesita hacer una declaración ambiental, debe ir por IRAM — no por el contrato `energy_token`. Esto es consistente con el Pivot #2 (`memory/product-research.md`): BeEnergy no vende certificados a terceros, así que esta pregunta no es urgente, pero el principio se mantiene si el producto evoluciona hacia ahí.

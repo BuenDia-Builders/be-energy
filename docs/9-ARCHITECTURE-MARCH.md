@@ -1,6 +1,6 @@
 # 9. BeEnergy — Arquitectura para el Equipo
 
-> Actualización 16 de marzo 2026
+> Actualización 16 de marzo 2026 — **Modelo de negocio superado por el Pivot #2 (octubre 2026), ver `memory/product-research.md`. El resto de este documento (arquitectura técnica) sigue siendo válido.**
 > v0.4.0 · Stellar Testnet
 
 ---
@@ -12,21 +12,23 @@
 │                    BEENERGY — INGRESOS                      │
 │                                                             │
 │  ┌─────────────────────┐    ┌────────────────────────────┐  │
-│  │  1. SaaS mensual    │    │  2. Comisión por venta     │  │
-│  │                     │    │     de certificados        │  │
+│  │  1. SaaS mensual    │    │  2. Fee de gestión al      │  │
+│  │                     │    │     generador/cooperativa  │  │
 │  │  Starter  $300-500  │    │                            │  │
-│  │  Pro    $1000-1500  │    │  X% (ej: 5-10%) sobre     │  │
-│  │  Enterprise Custom  │    │  cada proto-certificado    │  │
-│  │                     │    │  vendido a un comprador    │  │
-│  │  Paga: cooperativa  │    │  externo                   │  │
+│  │  Pro    $1000-1500  │    │  Por el servicio de        │  │
+│  │  Enterprise Custom  │    │  asignación de créditos,   │  │
+│  │                     │    │  facturación y liquidación │  │
+│  │  Paga: cooperativa  │    │  (modelo Exa Energia)      │  │
 │  └─────────────────────┘    └────────────────────────────┘  │
 │                                                             │
 │  Cooperativa recibe:                                        │
 │  - Dashboard de gestión (SaaS)                              │
-│  - Infraestructura de certificación on-chain                │
-│  - Ingresos por venta de certificados (menos comisión)      │
+│  - Registro on-chain de créditos de generación compartida   │
+│  - Reparto transparente y auditable entre sus miembros      │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+Ninguna fuente de ingreso depende de vender certificados a un comprador externo (ESG, fondo climático, etc.) — ese modelo se descartó. Ver `docs/research/exa-energia.md`.
 
 ---
 
@@ -115,7 +117,7 @@
 │  - Registra la cooperativa
 │  - Alta de miembros y medidores
 │  - Revisa y valida lecturas
-│  - Crea certificados (mint)
+│  - Mintea créditos de generación
 │  - Ve estadísticas de generación
 │  - Gestiona todo desde el dashboard
 │                     │
@@ -133,19 +135,6 @@
 │  - Conecta wallet para recibir tokens
 │                     │
 │  Vista: /dashboard
-└─────────────────────┘
-
-┌─────────────────────┐
-│  COMPRADOR          │  Empresa ESG, fondo climático
-│  EXTERNO            │
-│                     │
-│  Qué hace:          │
-│  - Compra proto-certificados
-│  - Retira certificados (burn on-chain)
-│  - Declara consumo como renovable
-│  - Paga a la cooperativa
-│                     │
-│  Vista: (por construir — hoy es via transfer directo)
 └─────────────────────┘
 
 ┌─────────────────────┐
@@ -234,47 +223,7 @@
 
 ---
 
-## 5. Flujo de usuario: Comprador externo
-
-```
-    ┌──────────────┐
-    │  Empresa ESG │
-    │  quiere      │
-    │  certificados│
-    └──────┬───────┘
-           │
-           ▼
-    ┌──────────────┐
-    │  Conecta     │  Comprador tiene wallet Stellar
-    │  wallet      │
-    └──────┬───────┘
-           │
-           ▼
-    ┌──────────────┐
-    │  Adquiere    │  Transfer de tokens
-    │  certificados│  Pago a la cooperativa
-    └──────┬───────┘
-           │
-           ▼
-    ┌──────────────┐
-    │  Retira      │  POST /api/certificates/retire
-    │  certificado │  energy_token.burn_energy()
-    │  (burn)      │  Registra: comprador, propósito
-    └──────┬───────┘
-           │
-           ▼
-    ┌──────────────┐
-    │  Certificado │  Token quemado = no se reutiliza
-    │  retirado    │  Evita doble conteo
-    │              │  TX hash público en Stellar
-    │              │  Comprador puede declarar su
-    │              │  consumo como "renovable"
-    └──────────────┘
-```
-
----
-
-## 6. Flujo de usuario: Miembro
+## 5. Flujo de usuario: Miembro
 
 ```
     ┌──────────────┐
@@ -309,7 +258,7 @@
 
 ---
 
-## 7. Arquitectura técnica general
+## 6. Arquitectura técnica general
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -376,20 +325,20 @@
 
 ---
 
-## 8. Ciclo de vida del certificado
+## 7. Ciclo de vida del crédito de generación
 
 ```
-  LECTURA         VALIDACIÓN       CERTIFICADO       MINT            VENTA           RETIRO
+  LECTURA         VALIDACIÓN       CERTIFICADO       MINT            ASIGNACIÓN      LIQUIDACIÓN
      │                │                │               │               │               │
      ▼                ▼                ▼               ▼               ▼               ▼
 
-  Medidor         Admin coop       Se crea el       Token           Comprador       Burn
-  registra   →    revisa y    →    certificado  →   minteado   →    adquiere   →    on-chain
-  kWh             aprueba          en Supabase      on-chain        tokens          (quemado)
-                                                    1 tok = 1kWh    y paga
+  Medidor         Admin coop       Se crea el       Token           Se reparte      Respalda la
+  registra   →    revisa y    →    registro     →   minteado   →    a miembros  →   factura/
+  kWh             aprueba          en Supabase      on-chain        (% participación) descuento
+                                                    1 tok = 1kWh                     del miembro
 
-  Estado DB:      status:          status:          tx_hash:        transferred:    retired_at:
-  pending         verified         available        0x7a8b...       to: 0xABC       timestamp
+  Estado DB:      status:          status:          tx_hash:        member_percent: billed_at:
+  pending         verified         available        0x7a8b...       30%, 20%, ...   timestamp
 
   ────────────────────────────────────────────────────────────────────────────────────────
   SUPABASE (datos operativos)                       STELLAR (registro inmutable)
@@ -397,7 +346,7 @@
 
 ---
 
-## 9. Monorepo — Estructura
+## 8. Monorepo — Estructura
 
 ```
 be-energy/
@@ -434,7 +383,7 @@ be-energy/
 
 ---
 
-## 10. Stack completo
+## 9. Stack completo
 
 | Capa | Tecnología |
 |------|-----------|
