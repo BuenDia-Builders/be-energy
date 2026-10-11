@@ -1,6 +1,7 @@
 # 4. BeEnergy — Arquitectura
 
 > v0.3.0 · Modelo cooperativo · Stellar Testnet
+> Documento técnico (medidor → API → Soroban → dashboard) — no cambia con el Pivot #2 (ver `memory/product-research.md`). Lo que cambió es a quién se le asigna el crédito minteado (a los miembros, no a un comprador externo), no el pipeline de datos en sí.
 
 ---
 
