@@ -69,7 +69,7 @@ Evidence:
 
 | Feature | Code paths | UI | Contract | Docs | Classification | Notes |
 |---|---|---|---|---|---|---|
-| certificates | `api/certificates/**`, `useCertificates`, `useCertificateStats`, create/retire modals | `certificates`, `certificates/[id]`, `cooperative` | burn via `energy_token` | 1-PLAN, 2-HOW, 3-FLOW, 4-ARCH | unknown | Full cycle is live |
+| certificates | `api/certificates/**`, `useCertificates`, `useCertificateStats`, create/retire modals | `certificates`, `certificates/[id]`, `cooperative` | burn via `energy_token` | 1-PLAN, 2-HOW, 3-FLOW, 4-ARCH | **reinterpret** (Pivot #2, Oct 2026) | Full cycle is live. Decided: no external buyer — reinterpret as internal credit assignment to members. The "retire" step may still make sense as "mark credit as billed," not "buyer burns after purchase." See `memory/product-research.md` |
 | mint | `api/mint`, `mint-token-panel` | `/admin`, `cooperative` | `mint_energy` | 8-TEST | unknown | Two paths: server + wallet |
 
 ## Other surfaces
@@ -97,6 +97,7 @@ Only cases with objective evidence of oddity. Evidence lives with each table; on
 
 | Item | Requested decision |
 |---|---|
+| certificates (buyer/retire flow) | **Decided (Pivot #2, Oct 2026):** reinterpret — no external buyer, credits assigned internally to members. Code/UI still needs to change to match; tracked as a Stellar Wave audit issue. See `memory/product-research.md` |
 | DFNS | Still configured in prod? If not, freeze the custodial branch |
 | email endpoints | Verify whether the mail-link flow is live (no `fetch` expected) |
 | prosumers | Confirm removal (docs: legacy) |
