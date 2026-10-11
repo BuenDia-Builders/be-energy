@@ -97,3 +97,7 @@ Options to evaluate, without selecting one:
 ## Recommendation (Proposal, Not a Decision)
 
 Keep the product meaning open. Decide among the five options only after defining what one unit represents, what evidence backs issuance, whether holders may transfer it, and what burn or retirement must prove. This audit makes no token-standard choice and recommends no contract migration.
+
+## Resolution (Pivot #2, October 2026)
+
+The product decision this audit deferred has since been made: **accounting unit** — a shared-generation credit allocated internally to cooperative members, not an environmental certificate sold to an external buyer. See `memory/product-research.md`. This resolves the product-meaning question above; it does not by itself resolve whether `burn_energy`/`transfer` semantics still fit a "mark credit as billed" use case instead of "buyer retires after purchase" — that's still open and tracked as a Stellar Wave audit issue.
