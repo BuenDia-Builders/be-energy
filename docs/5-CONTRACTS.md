@@ -16,6 +16,8 @@
 
 **Dependencias:** soroban-sdk 23.1.0, OpenZeppelin stellar-contracts v0.5.1, Rust 1.89.0, target wasm32v1-none.
 
+Hay un 4º contrato, `cooperative_factory` (19 tests más), implementado pero no desplegado a Testnet ni integrado en el frontend — ver sección 4.
+
 ---
 
 ## 1. Energy Token
@@ -111,34 +113,52 @@ Skeleton para gobernanza cooperativa. Solo crea propuestas, no tiene votación t
 
 ---
 
-## 4. Contratos futuros
+## 4. Cooperative Factory
 
-### Cooperative Factory
+**Implementado y testeado (19 tests), pero no desplegado a Testnet ni integrado en el frontend.** No confundir con "futuro" — el código ya existe en `apps/contracts/cooperative_factory/src/lib.rs`.
 
-Despliega token + distribution por cooperativa en 1 transacción.
+Despliega `energy_token` + `energy_distribution` + `community_governance` de una cooperativa en una única transacción atómica, y los registra en el `CooperativeRegistry` (#169).
 
-```
-Factory.create_cooperative(admin, name, symbol, required_approvals)
-  → deploy energy_token(admin, name, symbol, cooperative_id)
-  → deploy energy_distribution(admin, token_address, cooperative_id)
-  → registra en Registry
-  → retorna { token_address, distribution_address }
-```
+### Por qué existe
 
-### Cooperative Registry
+Desplegar los 3 contratos a mano por cooperativa es lento y propenso a error (hay que pasar la dirección de distribution al constructor del token para el rol minter, y viceversa). La factory resuelve esto con un bootstrap de direcciones determinísticas: calcula la dirección de `energy_distribution` *antes* de desplegarla (`deployer().deployed_address()`), y se la pasa directo al constructor del token — sin ciclos de grant/revoke de permisos después del deploy.
 
-Registro central de cooperativas.
+### Gobernanza de WASM
+
+Los hashes WASM de los 3 contratos hijos no se reciben como argumento de `deploy_cooperative` — eso permitiría a un admin malicioso de la factory desplegar WASM arbitrario. En cambio, se fijan una sola vez vía `set_wasm_hashes(token_wasm, distribution_wasm, governance_wasm)`, restringido al admin de la factory.
+
+### Funciones
+
+| Función | Auth | Descripción |
+|---------|------|-------------|
+| `__constructor(admin, registry)` | Deploy | Guarda el admin y la dirección del `CooperativeRegistry` |
+| `set_wasm_hashes(token_wasm, distribution_wasm, governance_wasm)` | Admin | Fija los 3 hashes WASM aprobados (una sola vez, antes del primer deploy) |
+| `deploy_cooperative(cooperative_id, admin, token_name, token_symbol, initial_members, required_approvals)` | Admin | Despliega los 3 contratos, siembra miembros iniciales (opcional) y registra la cooperativa |
+| `get_admin()` | Público | Admin de la factory |
+| `get_registry()` | Público | Dirección del `CooperativeRegistry` configurado |
+| `get_wasm_hashes()` | Público | Los 3 hashes WASM actuales |
+
+### Reglas de `deploy_cooperative`
+
+- `required_approvals` debe ser ≥ 1
+- `initial_members` solo se puede sembrar si `required_approvals == 1` (cooperativas multi-firma agregan miembros después, vía `add_members_multisig`)
+- Máximo 50 `initial_members` por deploy
+- Los porcentajes de `initial_members` deben sumar exactamente 100 (con suma chequeada, sin overflow silencioso)
+- Emite el evento `coop_deployed(cooperative_id, token_addr, dist_addr, gov_addr)`
+
+### Cooperative Registry (#169) — todavía NO implementado
+
+La factory ya tiene la interfaz cliente (`registry_interface::CooperativeRegistryTrait`) y llama a `register_cooperative(...)` al final de cada deploy, pero **el contrato `CooperativeRegistry` en sí no existe todavía** — es el issue #169, sigue abierto (ver `memory/backlog-pendiente.md`). Los tests de `cooperative_factory` usan un `MockRegistry` interno (solo para tests) que implementa la misma interfaz mínima:
 
 ```rust
-pub struct CooperativeInfo {
-    pub id: u32,
-    pub name: String,
-    pub admin: Address,
-    pub token_contract: Address,
-    pub distribution_contract: Address,
-    pub active: bool,
+pub struct RegistryEntry {
+    pub token: Address,
+    pub distribution: Address,
+    pub governance: Address,
 }
 ```
+
+Hasta que se implemente el registry real, la factory no se puede usar en Testnet/Mainnet — necesita la dirección de un `CooperativeRegistry` desplegado en su constructor.
 
 ---
 
