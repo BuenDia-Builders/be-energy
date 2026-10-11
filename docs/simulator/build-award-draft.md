@@ -1,5 +1,7 @@
 # SCF Build Award — Submission Draft
 
+> ⚠️ **OBSOLETO — NO ENVIAR TAL CUAL.** Este draft describe el modelo pre-pivot (P2P entre vecinos, token "HoneyDrops/HDROP", foco en España) que ya fue descartado dos veces: primero por el pivot de marzo 2026 (proto-certificado a comprador ESG) y después por el Pivot #2 de octubre 2026 (gestión de créditos de generación compartida, foco Argentina — ver `memory/product-research.md`). Se mantiene como referencia histórica de formato/budget de grant, no como contenido vigente.
+
 ## Track
 
 **Integration** — Hardware integration & testing (solar panel + smart meter + LoRaWAN gateway)
