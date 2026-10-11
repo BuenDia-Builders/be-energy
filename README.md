@@ -8,6 +8,11 @@
 
 ---
 
+> ### ⚠️ Estado actual (pivot en curso — leer antes de lo demás)
+> BeEnergy está pivoteando el modelo de producto. El flujo de "comprador externo / certificado vendido a ESG" y cualquier mercado secundario descritos más abajo **no son el rumbo actual** — se descartaron junto con el marketplace P2P. La nueva dirección: software de gestión de créditos de generación compartida para cooperativas eléctricas (foco Argentina, referencia: Exa Energia en Brasil). El resto de este README todavía no está actualizado al pivot — se está reescribiendo por partes. No asumir que lo de abajo describe el producto que se está construyendo hoy.
+
+---
+
 ## 🏆 Recognition
 
 | Award | Event |
@@ -67,15 +72,6 @@ No intermediaries. No PDFs. No trust required — the chain is the proof.
 3. Meters send generation readings automatically via API
 4. BeEnergy mints proto-certificates on Stellar
 5. Manage members, view generation stats, track certificates
-```
-
-### For Buyers
-
-```
-1. Browse available certificates by cooperative / technology / period
-2. Purchase certificates (linked to specific on-chain tokens)
-3. Retire certificate → recorded permanently on Stellar
-4. Receive auditable proof of renewable energy support
 ```
 
 ### Authentication
@@ -221,7 +217,6 @@ BeEnergy is designed to plug into Stellar's growing DeFi and payments ecosystem.
 |-------------|------------------------------|
 | **[DeFindex](https://defindex.io)** | Cooperatives earn yield on certificate proceeds held in vaults — idle capital works while certificates wait for buyers |
 | **[Blend Protocol](https://blend.capital)** | Use certificates as collateral for credit lines — cooperatives access working capital without selling |
-| **[Soroswap](https://soroswap.finance)** | AMM liquidity pool for certificate tokens — enables price discovery and secondary market for renewable attributes |
 | **USDC (Circle)** | Stablecoin payments for certificate purchases — buyers pay in USDC, cooperatives receive USDC, no FX volatility |
 | **[Aquarius](https://aquarius.network)** | Liquidity incentives for BETOKEN/USDC pairs — bootstraps the certificate secondary market |
 | **Fiat On/Off Ramp (SEP-24)** | Cooperatives receive payments in local fiat (ARS, COP, BRL) via Stellar anchors — no crypto knowledge required |
