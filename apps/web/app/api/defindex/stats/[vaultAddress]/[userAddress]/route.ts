@@ -4,6 +4,8 @@ import { getUserYieldStats } from '@/lib/defindex-service';
 /**
  * GET /api/defindex/stats/[vaultAddress]/[userAddress]
  * Obtiene estadísticas de rendimiento de un usuario en un vault
+ *
+ * Not called from the UI yet; see the note at the top of lib/defindex-service.ts.
  */
 export async function GET(
   request: Request,

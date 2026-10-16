@@ -5,6 +5,8 @@ import { generateWithdrawTransaction } from '@/lib/defindex-service';
  * POST /api/defindex/withdraw
  * Genera una transacción de retiro de un vault de DeFindex
  *
+ * Not called from the UI yet; see the note at the top of lib/defindex-service.ts.
+ *
  * Body:
  * {
  *   vaultAddress: string,

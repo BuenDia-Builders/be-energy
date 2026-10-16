@@ -4,6 +4,8 @@ import { checkHealth } from '@/lib/defindex-service';
 /**
  * GET /api/defindex/health
  * Verifica el estado de la conexión con DeFindex
+ *
+ * Not called from the UI yet; see the note at the top of lib/defindex-service.ts.
  */
 export async function GET() {
   try {

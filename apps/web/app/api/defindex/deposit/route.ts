@@ -5,6 +5,8 @@ import { generateDepositTransaction } from '@/lib/defindex-service';
  * POST /api/defindex/deposit
  * Genera una transacción de depósito en un vault de DeFindex
  *
+ * Not called from the UI yet; see the note at the top of lib/defindex-service.ts.
+ *
  * Body:
  * {
  *   vaultAddress: string,
