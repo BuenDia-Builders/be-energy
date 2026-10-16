@@ -52,7 +52,7 @@ export function MobileSidebar() {
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard"
-    return pathname.startsWith(href)
+    return pathname === href || pathname.startsWith(href + "/")
   }
 
   const handleNavigate = (href: string, enabled: boolean) => {

@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "feat/issue-258-refactor-unify-the-two-overlapping-admin-panels",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "feat/issue-258-refactor-unify-the-two-overlapping-admin-panels": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "feat/issue-258-refactor-unify-the-two-overlapping-admin-panels",
+    "origin"
+  ]
+}

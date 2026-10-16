@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
 import { LockKeyhole, ShieldAlert, Zap } from "lucide-react"
 
-export function MintTokenPanel() {
+export function MintTokenPanel({ embedded = false }: { embedded?: boolean } = {}) {
   const { address } = useWallet()
   const { mintEnergy, checkIsMinter, isLoading } = useEnergyToken()
   const { toast } = useToast()
@@ -81,7 +81,13 @@ export function MintTokenPanel() {
   const isSubmitDisabled = isFormDisabled || !recipient.trim() || !amount
 
   return (
-    <Card className="max-w-lg glass-card border-2 border-primary/20">
+    <Card
+      className={
+        embedded
+          ? "glass-card border-2 border-primary/20"
+          : "max-w-lg glass-card border-2 border-primary/20"
+      }
+    >
       <CardHeader>
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center flex-shrink-0">
