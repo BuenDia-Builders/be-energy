@@ -73,7 +73,7 @@ export function Sidebar() {
               onClick={() => item.enabled && router.push(item.href)}
               disabled={!item.enabled}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-left text-sm",
+                "wfull flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-left text-sm",
                 active
                   ? "bg-sidebar-accent text-sidebar-primary font-semibold"
                   : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
@@ -90,7 +90,7 @@ export function Sidebar() {
       <div className="p-3 border-t border-sidebar-border">
         <button
           onClick={handleDisconnect}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-colors"
+          className="wfull flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-colors"
         >
           <LogOut className="w-4 h-4 shrink-0" strokeWidth={1.5} />
           {t("sidebar.disconnect")}
