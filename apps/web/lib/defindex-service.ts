@@ -1,6 +1,11 @@
 /**
  * DeFindex Service
  * Servicio para gestionar operaciones de yield/rendimiento con DeFindex
+ *
+ * Not called from the UI at the moment. This service is only used by the
+ * /api/defindex/* routes, and the only caller of those routes was the
+ * useDefindex hook, which nothing imported and which was removed (#262).
+ * The service and the routes are kept for a possible future integration.
  */
 
 import { DefindexSDK, SupportedNetworks } from '@defindex/sdk';
