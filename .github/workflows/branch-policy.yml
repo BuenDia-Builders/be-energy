@@ -1,11 +1,12 @@
 name: Branch Policy
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [main]
 
 permissions:
   pull-requests: write
+  issues: write
 
 jobs:
   check-branch-policy:
