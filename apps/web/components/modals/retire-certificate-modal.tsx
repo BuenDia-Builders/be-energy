@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useI18n } from "@/lib/i18n-context"
-import { useWallet } from "@/lib/wallet-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { X, Flame, AlertCircle, CheckCircle2, ExternalLink } from "lucide-react"
@@ -22,20 +21,21 @@ interface RetireCertificateModalProps {
   onSuccess: () => void
 }
 
-const PURPOSES = ["esg_reporting", "carbon_offset", "voluntary_commitment", "regulatory_compliance", "other"] as const
-
-export function RetireCertificateModal({ isOpen, onClose, certificate, onSuccess }: RetireCertificateModalProps) {
+/** Admin applies generation credit to billing (Pivot #2 — not external buyer). */
+export function RetireCertificateModal({
+  isOpen,
+  onClose,
+  certificate,
+  onSuccess,
+}: RetireCertificateModalProps) {
   const { t } = useI18n()
-  const { address } = useWallet()
   const [buyerName, setBuyerName] = useState("")
-  const [buyerPurpose, setBuyerPurpose] = useState<string>("esg_reporting")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [txHash, setTxHash] = useState<string | null>(null)
 
   const resetForm = () => {
     setBuyerName("")
-    setBuyerPurpose("esg_reporting")
     setError(null)
     setTxHash(null)
   }
@@ -48,7 +48,7 @@ export function RetireCertificateModal({ isOpen, onClose, certificate, onSuccess
   }
 
   const handleSubmit = async () => {
-    if (!certificate || !address) return
+    if (!certificate) return
     setIsSubmitting(true)
     setError(null)
     try {
@@ -57,14 +57,13 @@ export function RetireCertificateModal({ isOpen, onClose, certificate, onSuccess
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           certificate_id: certificate.id,
-          buyer_address: address,
-          buyer_name: buyerName || undefined,
-          buyer_purpose: buyerPurpose,
+          buyer_name: buyerName || "billing settlement",
+          buyer_purpose: "billing_settlement",
         }),
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || "Failed to retire certificate")
+        throw new Error(data.error || "Failed to apply credit")
       }
       const data = await res.json()
       setTxHash(data.burn_tx_hash)
@@ -88,10 +87,16 @@ export function RetireCertificateModal({ isOpen, onClose, certificate, onSuccess
             </div>
             <div>
               <h2 className="text-xl font-bold text-foreground">{t("retire.title")}</h2>
-              <p className="text-xs text-muted-foreground">{certificate.cooperatives?.name} · {certificate.technology}</p>
+              <p className="text-xs text-muted-foreground">
+                {certificate.cooperatives?.name} · {certificate.technology}
+              </p>
             </div>
           </div>
-          <button onClick={handleClose} className="text-muted-foreground hover:text-foreground" disabled={isSubmitting}>
+          <button
+            onClick={handleClose}
+            className="text-muted-foreground hover:text-foreground"
+            disabled={isSubmitting}
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -108,7 +113,9 @@ export function RetireCertificateModal({ isOpen, onClose, certificate, onSuccess
             >
               Ver en Stellar Expert <ExternalLink className="w-3 h-3" />
             </a>
-            <Button onClick={handleClose} className="w-full mt-4">{t("common.back")}</Button>
+            <Button onClick={handleClose} className="w-full mt-4">
+              {t("common.back")}
+            </Button>
           </div>
         ) : (
           <>
@@ -116,21 +123,24 @@ export function RetireCertificateModal({ isOpen, onClose, certificate, onSuccess
 
             <div className="border border-border rounded-lg p-3 mb-4 bg-muted/50">
               <p className="text-sm text-muted-foreground">{t("retire.kwh")}</p>
-              <p className="text-2xl font-bold text-foreground">{certificate.total_kwh.toLocaleString()} kWh</p>
+              <p className="text-2xl font-bold text-foreground">
+                {certificate.total_kwh.toLocaleString()} kWh
+              </p>
             </div>
 
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{t("retire.buyerName")}</label>
-                <Input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">{t("retire.buyerPurpose")}</label>
-                <select value={buyerPurpose} onChange={(e) => setBuyerPurpose(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">
-                  {PURPOSES.map((p) => (
-                    <option key={p} value={p}>{t(`retire.purposes.${p}`)}</option>
-                  ))}
-                </select>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  {t("retire.buyerName")}
+                </label>
+                <Input
+                  value={buyerName}
+                  onChange={(e) => setBuyerName(e.target.value)}
+                  placeholder="Member or billing cycle label"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Who / which cycle this credit is applied to (internal billing).
+                </p>
               </div>
             </div>
 
@@ -142,7 +152,12 @@ export function RetireCertificateModal({ isOpen, onClose, certificate, onSuccess
             )}
 
             <div className="flex gap-3">
-              <Button variant="outline" onClick={handleClose} disabled={isSubmitting} className="flex-1 bg-transparent">
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                disabled={isSubmitting}
+                className="flex-1 bg-transparent"
+              >
                 {t("wallet.cancel")}
               </Button>
               <Button
@@ -150,7 +165,11 @@ export function RetireCertificateModal({ isOpen, onClose, certificate, onSuccess
                 disabled={isSubmitting}
                 className="flex-1 bg-solar-orange hover:bg-solar-orange/90 text-white font-semibold"
               >
-                {isSubmitting ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : t("retire.confirm")}
+                {isSubmitting ? (
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  t("retire.confirm")
+                )}
               </Button>
             </div>
           </>
