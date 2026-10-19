@@ -181,7 +181,7 @@ async function step2_registerProsumers(users: SimUser[]) {
     process.stdout.write(`  ${u.name} — registrando... `);
 
     try {
-      await api("POST", "/api/prosumers", {
+      await api("POST", "/api/members", {
         stellar_address: u.keypair.public,
         name: u.name,
         panel_capacity_kw: u.panelCapacityKw,
@@ -525,7 +525,7 @@ async function main() {
 
   // Check API is reachable
   try {
-    await fetch(`${API_BASE}/api/prosumers`);
+    await fetch(`${API_BASE}/api/members`);
   } catch {
     console.error(
       `\n  ✗ No se puede conectar a ${API_BASE}. ¿Está corriendo el servidor?`
