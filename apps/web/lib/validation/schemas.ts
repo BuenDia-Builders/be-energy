@@ -26,15 +26,6 @@ export const createCooperativeSchema = z.object({
   city: z.string().max(100).nullish(),
 })
 
-// Members
-export const createMemberSchema = z.object({
-  stellar_address: stellarAddress,
-  cooperative_id: uuid,
-  name: z.string().max(200).nullish(),
-  panel_capacity_kw: z.number().positive().nullish(),
-  role: z.enum(["prosumer", "copropietario", "mixed"]).default("prosumer"),
-})
-
 // Legacy prosumer (members/route.ts)
 export const createProsumerSchema = z.object({
   stellar_address: stellarAddress,
