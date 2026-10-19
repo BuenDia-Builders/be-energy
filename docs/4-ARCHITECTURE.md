@@ -225,7 +225,6 @@ be-energy/
 | `/api/certificates/[id]` | GET | Detalle con proveniencia + Stellar Expert link |
 | `/api/certificates/retire` | POST | Retirar certificado (burn on-chain) |
 | `/api/certificates/stats` | GET | Estadísticas de certificación |
-| `/api/prosumers` | GET, POST | Legacy proxy → members |
 
 ---
 

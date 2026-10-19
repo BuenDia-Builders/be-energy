@@ -7,7 +7,7 @@ Red: **Stellar Testnet**
 
 ## Unit Tests (API Routes)
 
-45 tests en 10 archivos. Se ejecutan con Vitest.
+68 tests en 12 archivos. Se ejecutan con Vitest.
 
 ```bash
 cd apps/web && pnpm test
@@ -24,7 +24,6 @@ cd apps/web && pnpm test
 | `certificates.test.ts` | 3 | CRUD certificados, filtros |
 | `certificates-retire.test.ts` | 5 | Retiro (burn on-chain), validación buyer_purpose |
 | `certificates-stats.test.ts` | 2 | Estadísticas de certificación, CO2 evitado |
-| `prosumers.test.ts` | 6 | Legacy proxy, backward compat |
 
 ---
 
