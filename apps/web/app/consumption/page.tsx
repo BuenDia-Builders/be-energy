@@ -17,7 +17,7 @@ import { InfoTooltip } from "@/components/shared/info-tooltip"
 const STATUS_TOOLTIP: Record<string, string> = {
   pending: "Esta lectura está pendiente de validación por el administrador de tu cooperativa.",
   verified: "La cooperativa revisó y confirmó que esta lectura es correcta.",
-  certified: "Esta lectura fue certificada y registrada en la blockchain como proto-certificado de energía renovable.",
+  certified: "Esta lectura fue registrada en Testnet como registro de generación declarado.",
 }
 
 const SOURCE_TOOLTIP: Record<string, string> = {
