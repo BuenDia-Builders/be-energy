@@ -264,8 +264,17 @@ name = "cooperative_factory"
 version = "0.1.0"
 dependencies = [
  "community_governance",
+ "cooperative_registry",
  "energy-distribution",
  "energy_token",
+ "soroban-sdk",
+ "stellar-access",
+]
+
+[[package]]
+name = "cooperative_registry"
+version = "0.1.0"
+dependencies = [
  "soroban-sdk",
  "stellar-access",
 ]

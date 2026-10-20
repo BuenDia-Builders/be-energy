@@ -1059,4 +1059,119 @@ mod test {
         // setup() llama set_wasm_hashes (1 evento) + deploy_cooperative (1 evento) = 2 en total.
         assert_eq!(env.events().all().len(), 2);
     }
+
+    // ========================================================================
+    // Integración con el CooperativeRegistry real (#169)
+    //
+    // A diferencia de MockRegistry, estos tests despliegan el contrato
+    // `cooperative_registry` y verifican el flujo completo factory → registry,
+    // incluido el control de acceso del registry.
+    // ========================================================================
+
+    use cooperative_registry::{
+        CooperativeRegistry as RealRegistry, CooperativeRegistryClient as RealRegistryClient,
+    };
+
+    struct RealRegistryEnv<'a> {
+        factory: CooperativeFactoryClient<'a>,
+        registry: RealRegistryClient<'a>,
+    }
+
+    /// Despliega registry real + factory. Con `authorize_factory` el admin del
+    /// registry designa a la factory como registrar (paso 3 del orden de
+    /// despliegue documentado en `cooperative_registry`).
+    fn setup_with_real_registry(env: &Env, authorize_factory: bool) -> RealRegistryEnv<'_> {
+        env.mock_all_auths_allowing_non_root_auth();
+
+        let registry_admin = Address::generate(env);
+        let registry_id = env.register(RealRegistry, (&registry_admin,));
+        let registry = RealRegistryClient::new(env, &registry_id);
+
+        let factory_admin = Address::generate(env);
+        let factory_id = env.register(CooperativeFactory, (&factory_admin, &registry_id));
+        let factory = CooperativeFactoryClient::new(env, &factory_id);
+
+        if authorize_factory {
+            registry.set_registrar(&factory_id);
+        }
+
+        let token_hash = env.deployer().upload_contract_wasm(TOKEN_WASM);
+        let distribution_hash = env.deployer().upload_contract_wasm(DISTRIBUTION_WASM);
+        let governance_hash = env.deployer().upload_contract_wasm(GOVERNANCE_WASM);
+        factory.set_wasm_hashes(&token_hash, &distribution_hash, &governance_hash);
+
+        RealRegistryEnv { factory, registry }
+    }
+
+    #[test]
+    fn test_deploy_registers_in_real_registry() {
+        let env = Env::default();
+        let t = setup_with_real_registry(&env, true);
+        let id = coop_id(&env);
+
+        let info = t.factory.deploy_cooperative(
+            &id,
+            &Address::generate(&env),
+            &String::from_str(&env, "Solar BA Token"),
+            &String::from_str(&env, "CSBA"),
+            &vec![&env],
+            &1u32,
+        );
+
+        let entry = t.registry.get_cooperative(&id).unwrap();
+        assert_eq!(entry.token, info.token_contract);
+        assert_eq!(entry.distribution, info.distribution_contract);
+        assert_eq!(entry.governance, info.governance_contract);
+        assert_eq!(t.registry.get_cooperative_count(), 1);
+    }
+
+    #[test]
+    fn test_deploy_fails_if_factory_is_not_the_registrar() {
+        let env = Env::default();
+        // El admin del registry nunca designó a la factory como registrar.
+        let t = setup_with_real_registry(&env, false);
+        let id = coop_id(&env);
+
+        let result = t.factory.try_deploy_cooperative(
+            &id,
+            &Address::generate(&env),
+            &String::from_str(&env, "Solar BA Token"),
+            &String::from_str(&env, "CSBA"),
+            &vec![&env],
+            &1u32,
+        );
+
+        // El registro falla → todo el despliegue se revierte (atomicidad).
+        assert!(result.is_err());
+        assert_eq!(t.registry.get_cooperative(&id), None);
+        assert_eq!(t.registry.get_cooperative_count(), 0);
+    }
+
+    #[test]
+    fn test_real_registry_lists_every_deployed_cooperative() {
+        let env = Env::default();
+        let t = setup_with_real_registry(&env, true);
+
+        let mut infos = vec![&env];
+        for name in ["coop-uno", "coop-dos"] {
+            let info = t.factory.deploy_cooperative(
+                &String::from_str(&env, name),
+                &Address::generate(&env),
+                &String::from_str(&env, "Token"),
+                &String::from_str(&env, "TKN"),
+                &vec![&env],
+                &1u32,
+            );
+            infos.push_back(info);
+        }
+
+        let listed = t.registry.list_cooperatives(&0, &10);
+        assert_eq!(listed.len(), 2);
+        for (listing, info) in listed.iter().zip(infos.iter()) {
+            assert_eq!(listing.cooperative_id, info.cooperative_id);
+            assert_eq!(listing.entry.token, info.token_contract);
+            assert_eq!(listing.entry.distribution, info.distribution_contract);
+            assert_eq!(listing.entry.governance, info.governance_contract);
+        }
+    }
 }
