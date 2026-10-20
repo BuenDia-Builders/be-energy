@@ -2,6 +2,8 @@
 
 > v0.3.0 · Modelo cooperativo · Stellar Testnet
 > Documento técnico (medidor → API → Soroban → dashboard) — no cambia con el Pivot #2 (ver `memory/product-research.md`). Lo que cambió es a quién se le asigna el crédito minteado (a los miembros, no a un comprador externo), no el pipeline de datos en sí.
+>
+> **Nota (audit DFNS):** ver sección "Auth & Wallet (custodial vs non-custodial)" más abajo para el estado de la ruta DFNS / `server_keypair`. Estado en prod: **no verificado** por un maintainer (ver esa sección).
 
 ---
 
@@ -248,6 +250,35 @@ be-energy/
 
 ---
 
+## Auth & Wallet (custodial vs non-custodial)
+
+La UI usa exclusivamente la wallet **non-custodial** (Stellar Wallets Kit / Freighter, SEP-43) vía `lib/wallet-context.tsx`. Ningún componente de UI importa ni referencia DFNS.
+
+Existe, sin embargo, un segundo camino **custodial** en el repo:
+
+- `apps/web/lib/dfns.ts`
+- `apps/web/app/auth/callback/**`
+- `apps/web/app/api/auth/email/verify`
+
+Este camino usa DFNS (con un fallback a `server_keypair`) y **no es invocado por ningún flujo de UI**. El audit (`docs/audit/features.md`, tabla "Auth & Wallet") lo dejó marcado como "unknown — still configured in prod?".
+
+### Estado en producción
+
+> **Pendiente de verificación por un maintainer.** El autor de este audit no tiene acceso al panel de Vercel para confirmar si las env vars de DFNS (`DFNS_*`) están seteadas en el environment de producción. Hasta que un maintainer lo confirme, el estado se considera **no verificado**.
+
+**Respuesta al audit:** no se pudo verificar si DFNS está live en producción (sin acceso a Vercel env vars). No se asume ninguno de los dos estados. Ver "Trigger path" para las dos ramas posibles.
+
+### Trigger path
+
+- Si DFNS **no** está configurado en prod: este código está **dormant** (muerto en la práctica) y el camino efectivamente ejercitado es el fallback `server_keypair`. Los archivos llevan un comentario `DORMANT` en su cabecera indicándolo.
+- Si DFNS **sí** está configurado en prod: como no hay UI que lo llame, debe existir un trigger no-UI (job, cron, integración externa, script). Ese trigger debe documentarse en esta sección una vez identificado por un maintainer.
+
+**Búsqueda de trigger no-UI en el repo:** no se encontró ningún cron, job, script ni integración externa que invoque `lib/dfns.ts` ni las rutas `app/auth/callback/**` / `api/auth/email/verify`. Si DFNS está configurado en prod, el trigger es externo al repo y debe ser identificado por un maintainer.
+
+**No eliminar ni deshabilitar este código en este issue.** La remoción (si corresponde) es un follow-up separado.
+
+---
+
 ## Environment Variables
 
 ### Públicas (client-side)
@@ -267,6 +298,7 @@ be-energy/
 | `MINTER_SECRET_KEY` | Clave del minter para firmar mints server-side |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service key |
+| `DFNS_*` (custodial) | **Estado no verificado en prod.** Usado solo por `lib/dfns.ts` + `app/auth/callback/**` + `api/auth/email/verify`. Sin trigger desde la UI. Ver "Auth & Wallet" arriba. |
 
 ---
 

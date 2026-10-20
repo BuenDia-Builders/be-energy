@@ -1,3 +1,22 @@
+/**
+ * AUDIT NOTE (2024) — WALLET PROVISION PATH — STATUS: DERMANT / UNVERIFIED
+ *
+ * Password-based login callback. On first login it provisions a Stellar wallet
+ * via one of two paths:
+ *   1. DFNS custodial wallet — only when isDfnsConfigured() returns true.
+ *   2. server_keypair fallback — random Keypair funded via Friendbot (testnet).
+ *      This is the path exercised when DFNS env vars are absent.
+ *
+ * Audit findings:
+ *  - No UI code imports or references DFNS directly; the non-custodial Wallets
+ *    Kit is used everywhere else in the UI.
+ *  - Whether DFNS env vars are set in Vercel production could NOT be verified from
+ *    the repository. Treat this path as "dermant / unverified" until a
+ *    maintainer confirms the production environment.
+ *  - Do NOT delete or disable the DFNS branch here — removal is a separate follow-up
+ *    issue contingent on that confirmation.
+ */
+
 import { NextRequest, NextResponse } from "next/server"
 import { Keypair } from "@stellar/stellar-sdk"
 import { supabase } from "@/lib/supabase"
@@ -28,10 +47,12 @@ export async function GET(req: NextRequest) {
     dfnsWalletId = existingUser.dfns_wallet_id ?? null
   } else {
     if (isDfnsConfigured()) {
+      // DFNS custodial path — dermant / unverified in prod (see file header).
       const wallet = await getOrCreateStellarWallet(userId)
       stellarAddress = wallet.stellarAddress
       dfnsWalletId = wallet.walletId
     } else {
+      // server_keypair fallback — the path exercised when DFNS env vars are absent.
       const kp = Keypair.random()
       stellarAddress = kp.publicKey()
       await fetch(`https://friendbot.stellar.org?addr=${encodeURIComponent(stellarAddress)}`).catch(() => null)
