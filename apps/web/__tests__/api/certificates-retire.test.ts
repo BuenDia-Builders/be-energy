@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 const ADDR = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-const BUYER = "GBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 const COOP_ID = "00000000-0000-0000-0000-000000000001"
 const CERT_ID = "00000000-0000-0000-0000-000000000002"
+const OTHER_COOP = "00000000-0000-0000-0000-000000000099"
 
 const { mockSingle, mockFrom } = vi.hoisted(() => {
   const mockSingle = vi.fn()
@@ -25,12 +25,14 @@ vi.mock("@/lib/supabase", () => ({
 }))
 
 vi.mock("@/lib/auth/middleware", () => ({
-  requireAuth: vi.fn(async () => ({
+  requireAdmin: vi.fn(async () => ({
     sub: ADDR,
     cooperative_ids: [COOP_ID],
     admin_cooperative_ids: [COOP_ID],
   })),
-  isSession: vi.fn(() => true),
+  isSession: vi.fn((result: unknown) => {
+    return typeof result === "object" && result !== null && "sub" in result
+  }),
 }))
 
 vi.mock("@stellar/stellar-sdk", () => ({
@@ -48,6 +50,7 @@ vi.mock("@/lib/contracts-config", () => ({
 }))
 
 import { POST } from "@/app/api/certificates/retire/route"
+import { requireAdmin, isSession } from "@/lib/auth/middleware"
 
 function makeRequest(body: Record<string, unknown>) {
   return new NextRequest("http://localhost/api/certificates/retire", {
@@ -62,50 +65,82 @@ describe("POST /api/certificates/retire", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env = { ...originalEnv }
+    vi.mocked(requireAdmin).mockResolvedValue({
+      sub: ADDR,
+      cooperative_ids: [COOP_ID],
+      admin_cooperative_ids: [COOP_ID],
+    } as never)
+    vi.mocked(isSession).mockImplementation(
+      (r) => typeof r === "object" && r !== null && "sub" in r
+    )
   })
 
-  it("rechaza sin campos requeridos → 400", async () => {
-    const res = await POST(makeRequest({ certificate_id: CERT_ID }))
+  it("rejects missing certificate_id → 400", async () => {
+    const res = await POST(makeRequest({}))
     expect(res.status).toBe(400)
-    const json = await res.json()
-    expect(json.error).toMatch(/Validation failed/)
   })
 
-  it("rechaza buyer_purpose inválido → 400", async () => {
+  it("rejects invalid buyer_purpose → 400", async () => {
     const res = await POST(
       makeRequest({
         certificate_id: CERT_ID,
-        buyer_address: BUYER,
         buyer_purpose: "fun",
       })
     )
     expect(res.status).toBe(400)
   })
 
-  it("rechaza certificado inexistente → 404", async () => {
+  it("rejects missing certificate → 404", async () => {
     mockSingle.mockResolvedValueOnce({ data: null, error: { message: "not found" } })
 
     const res = await POST(
       makeRequest({
         certificate_id: CERT_ID,
-        buyer_address: BUYER,
-        buyer_purpose: "esg_reporting",
+        buyer_purpose: "billing_settlement",
       })
     )
     expect(res.status).toBe(404)
   })
 
-  it("rechaza certificado con status != available → 400", async () => {
+  it("rejects non-admin of cooperative → 403", async () => {
     mockSingle.mockResolvedValueOnce({
-      data: { id: CERT_ID, status: "pending", total_kwh: 100 },
+      data: {
+        id: CERT_ID,
+        status: "available",
+        total_kwh: 100,
+        cooperative_id: OTHER_COOP,
+      },
+      error: null,
+    })
+    vi.mocked(requireAdmin).mockResolvedValueOnce(
+      NextResponse.json({ error: "Admin access required" }, { status: 403 }) as never
+    )
+    vi.mocked(isSession).mockReturnValueOnce(false)
+
+    const res = await POST(
+      makeRequest({
+        certificate_id: CERT_ID,
+        buyer_purpose: "billing_settlement",
+      })
+    )
+    expect(res.status).toBe(403)
+  })
+
+  it("rejects status != available → 400", async () => {
+    mockSingle.mockResolvedValueOnce({
+      data: {
+        id: CERT_ID,
+        status: "pending",
+        total_kwh: 100,
+        cooperative_id: COOP_ID,
+      },
       error: null,
     })
 
     const res = await POST(
       makeRequest({
         certificate_id: CERT_ID,
-        buyer_address: BUYER,
-        buyer_purpose: "esg_reporting",
+        buyer_purpose: "billing_settlement",
       })
     )
     expect(res.status).toBe(400)
@@ -113,19 +148,23 @@ describe("POST /api/certificates/retire", () => {
     expect(json.error).toMatch(/pending/)
   })
 
-  it("rechaza sin MINTER_SECRET_KEY → 500", async () => {
+  it("rejects without MINTER_SECRET_KEY → 500", async () => {
     delete process.env.MINTER_SECRET_KEY
 
     mockSingle.mockResolvedValueOnce({
-      data: { id: CERT_ID, status: "available", total_kwh: 100 },
+      data: {
+        id: CERT_ID,
+        status: "available",
+        total_kwh: 100,
+        cooperative_id: COOP_ID,
+      },
       error: null,
     })
 
     const res = await POST(
       makeRequest({
         certificate_id: CERT_ID,
-        buyer_address: BUYER,
-        buyer_purpose: "esg_reporting",
+        buyer_purpose: "billing_settlement",
       })
     )
     expect(res.status).toBe(500)

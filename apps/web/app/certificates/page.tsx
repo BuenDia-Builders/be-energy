@@ -50,7 +50,17 @@ function StatusBadge({
   );
 }
 
-function CertificateCard({ cert, t, onRetire }: { cert: Certificate; t: (key: string) => string; onRetire?: (cert: Certificate) => void }) {
+function CertificateCard({
+  cert,
+  t,
+  onRetire,
+  canRetire,
+}: {
+  cert: Certificate;
+  t: (key: string) => string;
+  onRetire?: (cert: Certificate) => void;
+  canRetire?: boolean;
+}) {
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -82,7 +92,7 @@ function CertificateCard({ cert, t, onRetire }: { cert: Certificate; t: (key: st
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {cert.status === "available" && onRetire && (
+            {cert.status === "available" && canRetire && onRetire && (
               <Button
                 size="sm"
                 variant="outline"
@@ -147,6 +157,7 @@ function CertificateCard({ cert, t, onRetire }: { cert: Certificate; t: (key: st
 export default function CertificatesPage() {
   const { isConnected } = useWallet();
   const { isAuthenticated, session, isLoading: authLoading } = useAuth();
+  const adminCoopIds = session?.admin_cooperative_ids ?? [];
   const { t } = useI18n();
   const router = useRouter();
 
@@ -355,6 +366,7 @@ export default function CertificatesPage() {
                   key={cert.id}
                   cert={cert}
                   t={t}
+                  canRetire={adminCoopIds.includes(cert.cooperative_id)}
                   onRetire={isAuthenticated ? setRetireCert : undefined}
                 />
               ))}
