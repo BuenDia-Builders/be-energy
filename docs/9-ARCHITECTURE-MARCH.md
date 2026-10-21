@@ -297,7 +297,7 @@ Ninguna fuente de ingreso depende de vender certificados a un comprador externo 
 │  /api/cooperatives    /api/members      /api/meters                 │
 │  /api/readings        /api/meters/readings (bulk)                   │
 │  /api/certificates    /api/certificates/retire                      │
-│  /api/certificates/stats   /api/mint    /api/prosumers              │
+│  /api/certificates/stats   /api/mint                                │
 │                                                                     │
 └──────────┬───────────────────────────────────┬──────────────────────┘
            │                                   │
