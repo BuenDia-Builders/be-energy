@@ -4,7 +4,7 @@
  * Escenario real:
  *   Cooperativa Solar Misiones genera energía durante febrero 2026.
  *   Sus 3 prosumers tienen paneles solares con medidores inteligentes.
- *   La cooperativa certifica la generación del mes.
+ *   La cooperativa registra la generación del mes.
  *   Una empresa compradora ("GreenCorp SA") adquiere el certificado
  *   para su reporte ESG de carbono neutral.
  *
@@ -13,9 +13,9 @@
  *   2. Cooperativa — registrar "Cooperativa Solar Misiones" con 3 prosumers
  *   3. Medidores — instalar 3 smart meters (uno por prosumer)
  *   4. Generación — 30 días de lecturas simuladas (curva solar realista)
- *   5. Certificación — crear proto-certificado con el total del mes
- *   6. Mint on-chain — tokenizar el certificado en Stellar
- *   7. Compra/Retiro — GreenCorp SA retira el certificado (burn on-chain)
+ *   5. Registro — crear registro de generación con el total del mes
+ *   6. Mint on-chain — tokenizar el registro en Stellar
+ *   7. Compra/Retiro — GreenCorp SA retira el registro (burn on-chain)
  *
  * Los datos de Supabase se limpian al final.
  * Las transacciones en Stellar quedan permanentes y verificables.
@@ -308,11 +308,11 @@ async function paso4() {
   ;(global as any).__totalKwh = totalKwh
 }
 
-// ─── Paso 5: Crear proto-certificado ───
+// ─── Paso 5: Crear registro de generación ───
 
 async function paso5() {
   const totalKwh = (global as any).__totalKwh as number
-  step(5, 7, `Crear proto-certificado por ${totalKwh.toLocaleString()} kWh`)
+  step(5, 7, `Crear registro de generación por ${totalKwh.toLocaleString()} kWh`)
 
   const { data: cert, error: cErr } = await supabase
     .from("certificates")
@@ -330,7 +330,7 @@ async function paso5() {
 
   if (cErr) fail(`Insert certificate: ${cErr.message}`)
   certificateId = cert.id
-  ok(`Certificado creado: ${certificateId}`)
+  ok(`Registro creado: ${certificateId}`)
   ok(`Período: 1-28 febrero 2026`)
   ok(`Energía: ${totalKwh.toLocaleString()} kWh solar`)
   ok(`CO₂ evitado: ~${Math.round(totalKwh * 0.4)} kg (factor 0.4 kg/kWh)`)
@@ -341,7 +341,7 @@ async function paso5() {
 
 async function paso6() {
   const totalKwh = (global as any).__totalKwh as number
-  step(6, 7, "Mint on-chain — tokenizar certificado en Stellar Testnet")
+  step(6, 7, "Mint on-chain — tokenizar registro en Stellar Testnet")
 
   const minterPublic = StellarSdk.Keypair.fromSecret(MINTER_SECRET).publicKey()
   console.log(`  Contrato: ${CONTRACT}`)
@@ -421,7 +421,7 @@ async function main() {
   console.log("═══════════════════════════════════════════════════════════════")
   console.log()
   console.log("  Escenario:")
-  console.log("  Cooperativa Solar Misiones → genera energía → certifica")
+  console.log("  Cooperativa Solar Misiones → genera energía → registra")
   console.log("  GreenCorp SA → compra certificado → retira para ESG")
   console.log()
   console.log(`  Contrato: ${CONTRACT}`)
