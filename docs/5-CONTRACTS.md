@@ -16,7 +16,7 @@
 
 **Dependencias:** soroban-sdk 23.1.0, OpenZeppelin stellar-contracts v0.5.1, Rust 1.89.0, target wasm32v1-none.
 
-Hay un 4º contrato, `cooperative_factory` (19 tests más), implementado pero no desplegado a Testnet ni integrado en el frontend — ver sección 4.
+Hay un 4º y un 5º contrato, `cooperative_factory` (22 tests más) y `cooperative_registry` (21 tests más), implementados pero no desplegados a Testnet ni integrados en el frontend — ver sección 4.
 
 ---
 
@@ -115,7 +115,7 @@ Skeleton para gobernanza cooperativa. Solo crea propuestas, no tiene votación t
 
 ## 4. Cooperative Factory
 
-**Implementado y testeado (19 tests), pero no desplegado a Testnet ni integrado en el frontend.** No confundir con "futuro" — el código ya existe en `apps/contracts/cooperative_factory/src/lib.rs`.
+**Implementado y testeado (22 tests), pero no desplegado a Testnet ni integrado en el frontend.** No confundir con "futuro" — el código ya existe en `apps/contracts/cooperative_factory/src/lib.rs`.
 
 Despliega `energy_token` + `energy_distribution` + `community_governance` de una cooperativa en una única transacción atómica, y los registra en el `CooperativeRegistry` (#169).
 
@@ -146,9 +146,30 @@ Los hashes WASM de los 3 contratos hijos no se reciben como argumento de `deploy
 - Los porcentajes de `initial_members` deben sumar exactamente 100 (con suma chequeada, sin overflow silencioso)
 - Emite el evento `coop_deployed(cooperative_id, token_addr, dist_addr, gov_addr)`
 
-### Cooperative Registry (#169) — todavía NO implementado
+### Tests con el registry real
 
-La factory ya tiene la interfaz cliente (`registry_interface::CooperativeRegistryTrait`) y llama a `register_cooperative(...)` al final de cada deploy, pero **el contrato `CooperativeRegistry` en sí no existe todavía** — es el issue #169, sigue abierto (ver `memory/backlog-pendiente.md`). Los tests de `cooperative_factory` usan un `MockRegistry` interno (solo para tests) que implementa la misma interfaz mínima:
+Los tests históricos de la factory usan un `MockRegistry` interno (solo para tests). Además hay tests que despliegan el `cooperative_registry` real y verifican el flujo completo factory → registry: la cooperativa queda registrada con las tres direcciones, el listado las devuelve, y si la factory no fue designada como registrar el deploy completo se revierte. Estos tests, como el resto de los de la factory, requieren los WASM de los contratos hijos compilados antes (`cargo build --release --target wasm32v1-none`).
+
+---
+
+## 4.1 Cooperative Registry
+
+**Implementado y testeado (21 tests), pero no desplegado a Testnet ni integrado en el frontend.** Código en `apps/contracts/cooperative_registry/src/lib.rs` (issue #169).
+
+Directorio on-chain de cooperativas: guarda, por `cooperative_id`, las direcciones de token, distribución y gobernanza. Implementa la interfaz que `cooperative_factory` ya consume (`registry_interface::CooperativeRegistryTrait`), más listado paginado para un futuro directorio en el frontend.
+
+### Funciones
+
+| Función | Auth | Descripción |
+|---------|------|-------------|
+| `__constructor(admin)` | Deploy | Guarda el admin. Todavía no hay registrar. |
+| `set_registrar(registrar)` | Admin | Designa la dirección autorizada a registrar (normalmente la factory). Reemplaza al anterior. |
+| `remove_registrar()` | Admin | Revoca al registrar; sin registrar no se puede registrar nada. Lo ya registrado no se toca. |
+| `register_cooperative(cooperative_id, token_contract, distribution_contract, governance_contract)` | Registrar | Registra una cooperativa. Falla si el id ya existe o está vacío. Emite `coop_registered`. |
+| `get_cooperative(cooperative_id)` | Público | `Option<RegistryEntry>` |
+| `get_cooperative_count()` | Público | Total de cooperativas registradas |
+| `list_cooperatives(start, limit)` | Público | Página de `CooperativeListing { cooperative_id, entry }` en orden de registro. `limit` se limita a 50; `start` fuera de rango devuelve vacío. |
+| `get_admin()` / `get_registrar()` | Público | Admin y registrar actuales (`get_registrar` devuelve `None` si no hay) |
 
 ```rust
 pub struct RegistryEntry {
@@ -158,7 +179,27 @@ pub struct RegistryEntry {
 }
 ```
 
-Hasta que se implemente el registry real, la factory no se puede usar en Testnet/Mainnet — necesita la dirección de un `CooperativeRegistry` desplegado en su constructor.
+Mismos campos que el `MockRegistry` de la factory.
+
+### Control de acceso
+
+`register_cooperative` exige la autorización del **registrar** configurado por el admin. La interfaz de la factory no recibe un parámetro `caller`, así que Soroban solo puede autenticar a una dirección conocida de antemano: por eso hay **un único registrar a la vez**, no una lista. Para migrar a una nueva factory, el admin llama `set_registrar` con la nueva dirección. Cuando el registrar es un contrato (la factory), su autorización es implícita al invocar al registry directamente — no hace falta firma extra.
+
+### Orden de despliegue
+
+La factory necesita la dirección del registry en su constructor, así que el registrar se configura al final:
+
+```text
+1. desplegar cooperative_registry(admin)
+2. desplegar cooperative_factory(admin, registry)
+3. registry.set_registrar(factory)      # requiere auth del admin del registry
+```
+
+### Reglas
+
+- Las entradas son inmutables: un `cooperative_id` ya registrado no se puede volver a registrar ni sobrescribir.
+- Las cooperativas se guardan en storage *persistent* (una entrada + un índice por cooperativa), no en instance storage, para que el costo por invocación no crezca con el número de cooperativas. Cada lectura renueva el TTL de lo que lee.
+- No hay metadata adicional (nombre, estado, etc.): queda para un issue futuro.
 
 ---
 

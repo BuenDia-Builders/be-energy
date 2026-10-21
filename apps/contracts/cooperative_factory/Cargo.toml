@@ -16,3 +16,4 @@ soroban-sdk = { workspace = true, features = ["testutils"] }
 energy_token = { path = "../energy_token" }
 energy_distribution = { package = "energy-distribution", path = "../energy_distribution" }
 community_governance = { path = "../community_governance" }
+cooperative_registry = { path = "../cooperative_registry" }

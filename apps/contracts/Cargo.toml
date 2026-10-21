@@ -4,6 +4,7 @@ members = [
     "energy_distribution",
     "community_governance",
     "cooperative_factory",
+    "cooperative_registry",
 ]
 resolver = "2"
 
