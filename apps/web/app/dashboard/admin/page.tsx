@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useWallet } from "@/lib/wallet-context"
 import { useAuth } from "@/lib/auth-context"
@@ -9,6 +9,7 @@ import { useAdminStats } from "@/hooks/useAdminStats"
 import { Sidebar } from "@/components/sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { StatusBadge } from "@/components/shared/status-badge"
+import { MintTokenPanel } from "@/components/mint-token-panel"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Spinner } from "@/components/ui/spinner"
 import { Building2, Users, Zap, Award, Shield, ShieldAlert, ArrowRight, ExternalLink } from "lucide-react"
@@ -21,6 +22,7 @@ export default function SuperAdminPage() {
   const { t } = useI18n()
   const router = useRouter()
   const { stats, loading, error } = useAdminStats()
+  const [activeTab, setActiveTab] = useState<"stats" | "mint">("stats")
 
   useEffect(() => {
     if (!walletPending && !authLoading && !isConnected) {
@@ -46,6 +48,30 @@ export default function SuperAdminPage() {
             <h1 className="text-2xl font-bold">{t("superAdmin.title")}</h1>
           </div>
 
+          {/* Tabs */}
+          <div className="flex gap-2 mb-6 border-b border-border">
+            <button
+              onClick={() => setActiveTab("stats")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                activeTab === "stats"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t("superAdmin.tab.stats")}
+            </button>
+            <button
+              onClick={() => setActiveTab("mint")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                activeTab === "mint"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t("superAdmin.tab.mint")}
+            </button>
+          </div>
+
           {isPageLoading && (
             <div className="flex items-center justify-center py-12">
               <Spinner className="size-8" />
@@ -67,7 +93,15 @@ export default function SuperAdminPage() {
             </Card>
           )}
 
-          {!isPageLoading && !isAccessDenied && stats && (
+          {!isPageLoading && !isAccessDenied && activeTab === "mint" && (
+            <Card>
+              <CardContent className="p-6">
+                <MintTokenPanel />
+              </CardContent>
+            </Card>
+          )}
+
+          {!isPageLoading && !isAccessDenied && activeTab === "stats" && stats && (
             <>
               {/* Global Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
