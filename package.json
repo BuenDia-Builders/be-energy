@@ -4,8 +4,8 @@
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "dev": "node api.js && turbo dev",
-    "build": "node api.js && turbo build",
+    "dev": "turbo dev",
+    "build": "turbo build",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "simulate": "npx tsx scripts/simulate-testnet.ts",
