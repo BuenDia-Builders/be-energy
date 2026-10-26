@@ -226,6 +226,16 @@ be-energy/
 | `/api/certificates/retire` | POST | Retirar certificado (burn on-chain) |
 | `/api/certificates/stats` | GET | Estadísticas de certificación |
 
+## Email Authentication
+
+**Static status: LIVE.** A caller sends `POST /api/auth/email/send` with an email; the route calls Supabase `signInWithOtp` with `shouldCreateUser: true` and sets `emailRedirectTo` to `{Origin}/auth/callback` (fallbacks: `NEXT_PUBLIC_APP_URL`, then `http://localhost:3000`). The repo contains no first-party caller, Supabase project config, or email template. Therefore, the actual email's first-hop URL is unknown: a `ConfirmationURL` template would first use Supabase's hosted verification endpoint, while a `TokenHash` template could link directly to the app. The deployed redirect allow-list is also unverified. The configured app destination is `/auth/callback`, not `/api/auth/email/verify`.
+
+The callback accepts either a `code` (exchange for session) or `token_hash` plus `type` (verify OTP), creates the app session cookie, and redirects to `/dashboard`; invalid or missing parameters return to `/login` with an error. `/api/auth/email/verify` is a separate POST endpoint expecting `{email, token}` and is not the callback used by the email link. See `apps/web/app/api/auth/email/send/route.ts:22-27`, `apps/web/app/auth/callback/route.ts:9-42,98-99`, and `apps/web/app/api/auth/email/verify/route.ts:10-27,109`.
+
+**Manual email test: NOT PERFORMED** (no real email access in this investigation). For a human-run test: (1) in a configured test deployment, submit a test email to `POST /api/auth/email/send` (this creates the user if needed); (2) inspect the received message's actual link and record its full URL; (3) click it; (4) record the final URL, visible result, session-cookie result, and whether the user reaches `/dashboard`.
+
+Human results: link URL = `[FILL IN]`; final URL/result = `[FILL IN]`; session and dashboard result = `[FILL IN]`.
+
 ---
 
 ## Client Hooks

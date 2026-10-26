@@ -14,12 +14,12 @@ Code paths are relative to `apps/web/` except in the Contracts table, where they
 | custodial wallet (DFNS) | `lib/dfns.ts`, `app/auth/callback/**`, `api/auth/email/verify` | — (no imports in UI) | — | — | unknown | Server-only, with `server_keypair` fallback |
 | non-custodial wallet (kit) | `lib/wallet-context.tsx` | 13 pages + sidebars/header + 4 hooks + `auth-context` | — | 4-ARCH | unknown | The wallet used by all UI |
 | challenge-verify session | `api/auth/*`, `lib/auth-context.tsx`, `lib/auth/roles.ts` | `layout` + 6 pages + sidebars + `login` | — | — | unknown | Session core |
-| auth email send/verify | `api/auth/email/*` | — (no `fetch` in UI) | — | — | unknown | Absent `fetch` proves nothing: expected access is direct navigation from a mail link |
+| auth email send/verify | `api/auth/email/*`, `app/auth/callback/route.ts` | — (no in-repo caller) | — | 4-ARCH | LIVE | Send route calls Supabase OTP and redirects links to `/auth/callback`; callback handles link verification. No deployed template/config or manual email test verified. |
 
 Evidence:
 
 - DFNS and the kit coexist in different layers: DFNS is optional server-side (inert without its env vars) and the kit signs all UI. Docs don't mention DFNS (the "Modelo custodial" in 8-TESTING means `MINTER_SECRET_KEY`).
-- `api/auth/email/*` only references itself; no `fetch` in `app/`, `hooks/`, or `components/` — but for a verification endpoint that is not evidence of disuse.
+- Email send has no first-party caller, but `POST /api/auth/email/send` is callable and requests Supabase OTP with `/auth/callback` as its redirect (`apps/web/app/api/auth/email/send/route.ts:22-27`). The link callback handles `code` and `token_hash` (`apps/web/app/auth/callback/route.ts:9-42`) and sets the app session before redirecting to the dashboard (`:98-99`). `/api/auth/email/verify` instead expects a POST body containing `{email, token}` and is not the mail-link target (`apps/web/app/api/auth/email/verify/route.ts:10-27`). No Supabase project config/template is present in the repo; the actual email URL and deployed redirect allow-list remain unverified. See the manual-test placeholders in `docs/4-ARCHITECTURE.md`.
 
 ## Readings & Meters
 
