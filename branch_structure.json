@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "fix/issue-260-audit-verify-dfns-custodial-wallet-production",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "fix/issue-260-audit-verify-dfns-custodial-wallet-production": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "fix/issue-260-audit-verify-dfns-custodial-wallet-production",
+    "origin"
+  ]
+}
