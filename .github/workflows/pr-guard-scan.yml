@@ -9,4 +9,4 @@ permissions:
 
 jobs:
   scan:
-    uses: BuenDia-Builders/pr-guard/.github/workflows/reusable-scan.yml@main
+    uses: BuenDia-Builders/pr-guard/.github/workflows/reusable-scan.yml@v1

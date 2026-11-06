@@ -12,4 +12,4 @@ permissions:
 
 jobs:
   comment:
-    uses: BuenDia-Builders/pr-guard/.github/workflows/reusable-comment.yml@main
+    uses: BuenDia-Builders/pr-guard/.github/workflows/reusable-comment.yml@v1
