@@ -1,0 +1,12 @@
+name: PR Guard Scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    uses: BuenDia-Builders/pr-guard/.github/workflows/reusable-scan.yml@v1
