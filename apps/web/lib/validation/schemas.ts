@@ -139,16 +139,24 @@ export const updateReadingSchema = z.object({
   status: z.enum(["pending", "verified", "rejected"]),
 })
 
-// Retire
+// Retire / apply credit (internal billing settlement — Pivot #2)
+// Legacy DB columns buyer_* kept; semantics:
+//   buyer_address → admin who applied the credit
+//   buyer_name    → member or billing-cycle label
+//   buyer_purpose → prefer billing_settlement
 export const retireSchema = z.object({
   certificate_id: uuid,
-  buyer_address: stellarAddress,
+  buyer_address: stellarAddress.optional(),
   buyer_name: z.string().max(200).nullish(),
-  buyer_purpose: z.enum([
-    "esg_reporting",
-    "carbon_offset",
-    "voluntary_commitment",
-    "regulatory_compliance",
-    "other",
-  ]),
+  buyer_purpose: z
+    .enum([
+      "billing_settlement",
+      "member_allocation",
+      "esg_reporting",
+      "carbon_offset",
+      "voluntary_commitment",
+      "regulatory_compliance",
+      "other",
+    ])
+    .default("billing_settlement"),
 })
